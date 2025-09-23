@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Fixing Zeek/zkg Package Load Errors for File Carving",
+    "slug": "zeek-zkg-fix-file-carving",
+    "summary": "Root-caused `unknown identifier load` errors in Zeek site packages; performed clean reinstall of Zeek and zkg; validated EXE carving.",
+    "created_at": "2025-09-08"
+  },
+  {
+    "title": "Windows cURL Tips for Reverse-Proxy Testing",
+    "slug": "windows-curl-reverse-proxy",
+    "summary": "Collected Windows-syntax cURL examples to validate reverse proxy routes to containerized services in the Neutron lab.",
+    "created_at": "2025-09-06"
+  },
+  {
+    "title": "VirtualBox Network Plan Without pfSense",
+    "slug": "virtualbox-plan-no-pfsense",
+    "summary": "Documented adapter layout, NAT vs host-only, and Ansible connectivity with NetworkServices VM as the control node.",
+    "created_at": "2025-09-03"
+  },
+  {
+    "title": "TVRA Risk Model — Internal Threat Scope (Adeyemi Rows)",
+    "slug": "tvra-internal-threat-scope",
+    "summary": "Refined Adeyemi-owned rows: internal-only threat sources (deployment not online), clarified threat events and adjusted likelihood/impact with sector-specific context.",
+    "created_at": "2025-09-17"
+  }
+]

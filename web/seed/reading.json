@@ -1,0 +1,44 @@
+[
+  {
+    "title": "NIST SP 800-30 Rev.1 — Risk Management Guide",
+    "author": "NIST",
+    "year": 2012,
+    "status": "reference",
+    "notes": "Used for TVRA/risk language and likelihood/impact framing."
+  },
+  {
+    "title": "NIST SP 800-82 Rev.3 — ICS Security",
+    "author": "NIST",
+    "year": 2024,
+    "status": "reference",
+    "notes": "Referenced while discussing sector-specific risks."
+  },
+  {
+    "title": "SEED Labs — DNS Local Attack Lab Docs",
+    "author": "SEED Labs",
+    "year": 2025,
+    "status": "completed",
+    "notes": "Primary guide for the DNS local attack lab."
+  },
+  {
+    "title": "Zeek Documentation — File Carving & Packages",
+    "author": "Zeek Project",
+    "year": 2025,
+    "status": "in_progress",
+    "notes": "Used during reinstall and file extraction configuration."
+  },
+  {
+    "title": "Elastic Stack Docs — Beats, Mappings, Geo-point",
+    "author": "Elastic",
+    "year": 2025,
+    "status": "in_progress",
+    "notes": "For fixing geo-point mapping and index templates in Kibana."
+  },
+  {
+    "title": "Bird 2.0 Documentation — BGP & Filters",
+    "author": "CZ.NIC / Bird Project",
+    "year": 2025,
+    "status": "reference",
+    "notes": "Consulted for BGP filters and large-communities config."
+  }
+]

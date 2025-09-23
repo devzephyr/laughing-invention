@@ -1,0 +1,1 @@
+// Optional: future enhancement — SSR list with Neon query like projects/labs

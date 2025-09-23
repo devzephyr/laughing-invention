@@ -1,0 +1,42 @@
+[
+  {
+    "title": "SEED Labs — DNS Local Attack Lab",
+    "slug": "seed-dns-local-attack",
+    "summary": "Completed SEED DNS Local Attack Lab. Built from scratch with step-by-step commands, screenshots, and verification.",
+    "stack": ["SEED Labs", "Linux networking", "DNS"],
+    "writeup_md": "Goals: local DNS poisoning/attack scenarios; Steps: environment setup, packets/queries inspection, attack execution, mitigation; Evidence: command logs and screenshots; Lessons: resolver behavior and hardening.",
+    "created_at": "2025-04-12"
+  },
+  {
+    "title": "Wireshark (W4SP) — ARP/DHCP/DNS/FTP Credential Theft",
+    "slug": "w4sp-wireshark-attacks",
+    "summary": "Used Kali 2018.2 W4SP VM to analyze ARP spoofing, DHCP manipulation, DNS interception, and FTP credential theft scenarios. Included Metasploit/dockerized attack flows.",
+    "stack": ["Wireshark", "Kali W4SP", "Metasploit", "Docker"],
+    "writeup_md": "Captured traffic, identified attack signatures, extracted credentials (FTP), and documented remediation measures.",
+    "created_at": "2025-04-12"
+  },
+  {
+    "title": "Promiscuous Mode — Persistent Configuration",
+    "slug": "promisc-persistence",
+    "summary": "Investigated Ubuntu promiscuous-mode settings to make them reboot-persistent for capture/IDS workloads.",
+    "stack": ["Linux", "Network interfaces"],
+    "writeup_md": "Compared runtime vs persistent configs; documented systemd/netplan approaches and verification steps.",
+    "created_at": "2025-09-08"
+  },
+  {
+    "title": "VirtualBox Networking — NAT vs Host-Only (No pfSense)",
+    "slug": "virtualbox-network-design",
+    "summary": "Redesigned lab networks after removing pfSense: NAT Network with DHCP for internet egress, Host-Only for internal comms; clarified SSH paths for Ansible control node on NetworkServices VM.",
+    "stack": ["VirtualBox", "Ansible", "Linux/Windows"],
+    "writeup_md": "Diagrammed adapters; documented SSH connectivity from control node; hardened internal DNS and routing.",
+    "created_at": "2025-09-03"
+  },
+  {
+    "title": "ELK Beats → Elasticsearch → Kibana (Geo-Point & Templates)",
+    "slug": "elk-geo-indexing",
+    "summary": "Set up Beats shippers, resolved document_parsing_exception for geo-point fields via index templates and mapping fixes.",
+    "stack": ["Filebeat", "Packetbeat", "Winlogbeat", "Elasticsearch", "Kibana"],
+    "writeup_md": "Template versioning, index lifecycle, and dashboard verification with maps.",
+    "created_at": "2025-06-01"
+  }
+]

@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Neutron Multi-VM Lab (AD DS, Docker Host, Router, NetworkServices)",
+    "slug": "neutron-lab-topology",
+    "summary": "VirtualBox-based lab: Windows Server 2022 AD DS + DNS + DHCP, Ubuntu Router (nftables NAT/masq), DockerHost (containerized services), NetworkServices (Ansible control node). Internal domain: neutron.xyz (and variants used in labs).",
+    "tags": ["VirtualBox", "AD DS", "DNS", "DHCP", "nftables", "Docker", "Ansible"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-06-15"
+  },
+  {
+    "title": "Ansible Automation for Neutron",
+    "slug": "neutron-ansible-automation",
+    "summary": "Playbooks to provision Router, AD DS, DockerHost, and NetworkServices VMs. Control node runs on NetworkServices VM (not the host). Updated README with exact commands; removed pfSense from plan.",
+    "tags": ["Ansible", "Automation", "Linux", "Windows Server"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-09-03"
+  },
+  {
+    "title": "ELK Stack Threat-Hunting Setup",
+    "slug": "elk-threat-hunting",
+    "summary": "Filebeat/Packetbeat/Winlogbeat shipping to Elasticsearch; Kibana dashboards (geo-point mapping, index templates). Troubleshot mapping exceptions and pipeline issues.",
+    "tags": ["Elasticsearch", "Kibana", "Beats", "Threat Hunting"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-06-01"
+  },
+  {
+    "title": "Zeek File Extraction Pipeline",
+    "slug": "zeek-file-extraction",
+    "summary": "Reinstalled Zeek and zkg cleanly; fixed package load errors; configured file carving to capture binaries (EXE) rather than text; set carve output directory and persistence.",
+    "tags": ["Zeek", "zkg", "PCAP", "File carving"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-09-08"
+  },
+  {
+    "title": "Reverse Proxy + Containers (Windows cURL testing)",
+    "slug": "reverse-proxy-containers",
+    "summary": "Deployed containerized services behind a reverse proxy; verified routes with Windows-style cURL commands; tuned rules for the Neutron internal networks.",
+    "tags": ["Reverse Proxy", "Docker", "Networking", "Windows"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-09-06"
+  },
+  {
+    "title": "BGP with Bird 2.0 (Filters & Large Communities)",
+    "slug": "bird-bgp-config",
+    "summary": "Configured Bird 2.0 routers (e.g., as180r) with route filters and large-community handling; versioned configs (bird.conf) and validation steps.",
+    "tags": ["BGP", "Bird 2.0", "Routing"],
+    "repo_url": "",
+    "live_url": "",
+    "hero_image": "",
+    "created_at": "2025-05-20"
+  }
+]
