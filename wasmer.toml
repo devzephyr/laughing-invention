@@ -1,0 +1,17 @@
+[package]
+name = "adeyemi-portfolio"
+version = "0.1.0"
+description = "Portfolio website for Adeyemi Folarin"
+
+[app]
+kind = "nextjs"
+dir = "web"
+
+[app.env]
+NODE_ENV = "production"
+
+[app.build]
+command = "pnpm install && pnpm build"
+
+[app.start]
+command = "pnpm start -p $PORT"
