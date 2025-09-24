@@ -53,7 +53,7 @@ export async function sendMessage(formData: FormData) {
   const { name, email, subject, message } = MessageSchema.parse(raw);
 
   // Basic rate-limit by hashed IP (privacy-preserving)
-  const hdrs = headers();
+  const hdrs = await headers();
   const ip =
     hdrs.get('cf-connecting-ip') ||
     hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ||
