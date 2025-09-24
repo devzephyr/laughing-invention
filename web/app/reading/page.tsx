@@ -6,6 +6,7 @@ import Link from "next/link";
 import clsx from "clsx";
 
 export const revalidate = 60;
+export const runtime = 'edge';
 
 type ReadingItem = {
   title: string;

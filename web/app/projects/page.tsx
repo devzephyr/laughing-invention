@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 import { Card } from "@/components/ui/card";
 
 export const revalidate = 60;
+export const runtime = 'edge';
 
 type Project = {
   title: string;
