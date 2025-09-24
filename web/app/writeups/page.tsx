@@ -1,4 +1,6 @@
 import { sql } from "@/lib/db";
+
+export const dynamic = 'force-dynamic';
 import { Card } from "@/components/ui/card";
 
 export const revalidate = 60;

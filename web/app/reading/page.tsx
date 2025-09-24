@@ -1,4 +1,6 @@
 import { sql } from "@/lib/db";
+
+export const dynamic = 'force-dynamic';
 import { Reveal } from "@/components/scroll/Reveal";
 import Link from "next/link";
 import clsx from "clsx";

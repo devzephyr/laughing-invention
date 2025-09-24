@@ -1,5 +1,7 @@
 import { sql } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export const revalidate = 0;
 
 type Message = {
@@ -49,4 +51,3 @@ export default async function AdminMessagesPage() {
     </main>
   );
 }
-
