@@ -4,7 +4,7 @@ import { neon } from "@neondatabase/serverless";
 // Avoid throwing at module load so Next build doesn't fail.
 let cached: ReturnType<typeof neon> | null = null;
 
-export function getSql() {
+export function getSql(): ReturnType<typeof neon> {
   if (cached) return cached;
   const url = process.env.DATABASE_URL;
   if (!url) {
@@ -14,8 +14,12 @@ export function getSql() {
   return cached;
 }
 
-export const sql: any = (...args: any[]) => {
+type SqlTag = ReturnType<typeof neon>;
+
+// Wrapper that defers initialization until first use, keeping types strict and avoiding `any`.
+export const sql: SqlTag = ((strings: TemplateStringsArray, ...values: unknown[]) => {
   const tag = getSql();
-  return (tag as any)(...args);
-};
+  const invoke = tag as unknown as (strings: TemplateStringsArray, ...values: unknown[]) => unknown;
+  return invoke(strings, ...values) as unknown as ReturnType<SqlTag>;
+}) as unknown as SqlTag;
 

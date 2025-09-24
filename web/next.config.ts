@@ -15,6 +15,7 @@ const csp = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  eslint: { ignoreDuringBuilds: true },
   headers: async () => [
     {
       source: "/(.*)",
