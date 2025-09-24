@@ -13,11 +13,7 @@ export function middleware(req: NextRequest) {
   }
 
   const auth = req.headers.get('authorization') || '';
-  const expected = 'Basic ' + (
-    typeof btoa === 'function'
-      ? btoa(`${user}:${pass}`)
-      : (typeof Buffer !== 'undefined' ? Buffer.from(`${user}:${pass}`).toString('base64') : '')
-  );
+  const expected = 'Basic ' + btoa(`${user}:${pass}`);
   const ok = auth === expected;
   if (!ok) {
     return new NextResponse('Authentication required', {
