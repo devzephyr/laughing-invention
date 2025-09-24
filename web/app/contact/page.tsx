@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import Script from "next/script";
 
 const Schema = z.object({
   name: z.string().min(2, "Name is too short"),
@@ -21,18 +22,19 @@ export default function ContactPage() {
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<string | null>(null);
   const form = useForm<z.infer<typeof Schema>>({ resolver: zodResolver(Schema), defaultValues: { name: "", email: "", subject: "", message: "" } });
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center p-6">
       <div className="w-full max-w-xl rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-6 shadow-sm">
         <h1 className="text-xl font-semibold mb-4">Contact</h1>
+        {/* Cloudflare Turnstile (optional). Provide NEXT_PUBLIC_TURNSTILE_SITE_KEY to enable. */}
+        {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+        ) : null}
         <Form {...form}>
-          <form className="space-y-4" onSubmit={form.handleSubmit((values) => {
-            const fd = new FormData();
-            fd.set("name", values.name);
-            fd.set("email", values.email);
-            fd.set("subject", values.subject || "");
-            fd.set("message", values.message);
+          <form ref={formRef} className="space-y-4" onSubmit={form.handleSubmit((_values) => {
+            const fd = new FormData(formRef.current!);
             startTransition(async () => {
               try {
                 await sendMessage(fd);
@@ -72,6 +74,15 @@ export default function ContactPage() {
                 <FormMessage />
               </FormItem>
             )} />
+            {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+              <div className="pt-2">
+                <div
+                  className="cf-turnstile"
+                  data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+                  data-theme="auto"
+                />
+              </div>
+            ) : null}
             <Button type="submit" disabled={pending}>{pending ? 'Sending…' : 'Send'}</Button>
           </form>
         </Form>
