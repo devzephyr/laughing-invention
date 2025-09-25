@@ -26,7 +26,7 @@ export default function ContactPage() {
 
   return (
     <main className="min-h-[80vh] flex items-center justify-center p-6">
-      <div className="w-full max-w-xl rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-6 shadow-sm">
+      <div className="w-full max-w-xl rounded-lg border border-neutral-800 bg-neutral-900 p-6 shadow-sm text-neutral-200">
         <h1 className="text-xl font-semibold mb-4">Contact</h1>
         {/* Cloudflare Turnstile (optional). Provide NEXT_PUBLIC_TURNSTILE_SITE_KEY to enable. */}
         {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
@@ -49,28 +49,28 @@ export default function ContactPage() {
             <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
-                <FormControl><Input placeholder="Your name" {...field} /></FormControl>
+                <FormControl><Input placeholder="Your name" {...field} className="bg-neutral-800 text-neutral-100 border-neutral-700" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
-                <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>
+                <FormControl><Input type="email" placeholder="you@example.com" {...field} className="bg-neutral-800 text-neutral-100 border-neutral-700" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="subject" render={({ field }) => (
               <FormItem>
                 <FormLabel>Subject (optional)</FormLabel>
-                <FormControl><Input placeholder="How can I help?" {...field} /></FormControl>
+                <FormControl><Input placeholder="How can I help?" {...field} className="bg-neutral-800 text-neutral-100 border-neutral-700" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="message" render={({ field }) => (
               <FormItem>
                 <FormLabel>Message</FormLabel>
-                <FormControl><Textarea rows={6} placeholder="Tell me about the project…" {...field} /></FormControl>
+                <FormControl><Textarea rows={6} placeholder="Tell me about the project…" {...field} className="bg-neutral-800 text-neutral-100 border-neutral-700" /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -83,7 +83,7 @@ export default function ContactPage() {
                 />
               </div>
             ) : null}
-            <Button type="submit" disabled={pending}>{pending ? 'Sending…' : 'Send'}</Button>
+            <Button type="submit" disabled={pending} className="bg-emerald-600 text-neutral-900 hover:bg-emerald-500">{pending ? 'Sending…' : 'Send'}</Button>
           </form>
         </Form>
         {status && <p className="mt-3 text-sm opacity-80">{status}</p>}

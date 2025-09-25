@@ -31,7 +31,12 @@ export default async function LabsPage() {
     <main className="max-w-5xl mx-auto p-6">
       <h1 className="text-xl font-semibold mb-6">Labs</h1>
       <div className="grid gap-4">
-        {rows.length === 0 && <p className="opacity-80">No labs yet.</p>}
+        {rows.length === 0 && (
+          <div className="opacity-80">
+            <p>No labs yet.</p>
+            <p className="mt-2 text-sm">If you expected labs to appear, your database may not be configured for this deployment. Ensure <code>DATABASE_URL</code> is set in Cloudflare Pages environment variables (or your production secret binding).</p>
+          </div>
+        )}
         {rows.map((l) => (
           <Card key={l.slug} className="p-4">
             <div className="flex items-baseline justify-between gap-4">

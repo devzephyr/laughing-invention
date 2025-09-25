@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getLowPower } from "@/components/background/low-power";
 
 export default function BackgroundField() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -9,7 +8,7 @@ export default function BackgroundField() {
   // Field-line effect: thin lines bending with a vector field and cursor.
   const seeds = useRef<{ x: number; y: number }[]>([]);
   const mouse = useRef({ x: -9999, y: -9999 });
-  const lowPowerRef = useRef(false);
+  // lowPower feature removed; background always renders
 
   useEffect(() => {
     const prefersReduced = window.matchMedia(
@@ -49,15 +48,10 @@ export default function BackgroundField() {
 
     window.addEventListener("resize", onResize);
     window.addEventListener("mousemove", onMouseMove);
-    // initialize low power from storage
-    lowPowerRef.current = getLowPower();
+  // low-power feature removed; animation always active unless user prefers reduced motion
     initSeeds();
 
     function step() {
-      if (lowPowerRef.current) {
-        ctx.clearRect(0, 0, w, h);
-        return;
-      }
       ctx.clearRect(0, 0, w, h);
       const isDark = document.documentElement.classList.contains("dark");
       ctx.lineWidth = 1;
@@ -118,23 +112,13 @@ export default function BackgroundField() {
       }
     }
     document.addEventListener("visibilitychange", onVisibility);
-    function onLowPower(e: Event) {
-      const v = (e as CustomEvent<boolean>).detail as boolean;
-      lowPowerRef.current = v;
-      if (v && rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      } else if (!v && !prefersReduced && !rafRef.current) {
-        rafRef.current = requestAnimationFrame(step);
-      }
-    }
-    window.addEventListener("lowpowerchange", onLowPower as EventListener);
+    // low-power event listener removed
 
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("lowpowerchange", onLowPower as EventListener);
+  // no low-power event listener to remove
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);

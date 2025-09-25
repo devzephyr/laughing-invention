@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db';
+import DbStatusBadge from '@/components/DbStatusBadge';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'edge';
@@ -16,6 +17,8 @@ type Message = {
   created_at: string;
 };
 
+// DbStatusBadge is a client component that will render a small status when ?admin=1 is present
+
 export default async function AdminMessagesPage() {
   const rows = (await sql`
     select id, name, email, subject, body, ip_hash, user_agent, created_at
@@ -26,7 +29,12 @@ export default async function AdminMessagesPage() {
 
   return (
     <main className="max-w-6xl mx-auto p-6">
-      <h1 className="text-xl font-semibold mb-4">Messages (latest 100)</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">Messages (latest 100)</h1>
+        {/* DbStatusBadge only shows when ?admin=1 is present (client-side widget) */}
+        {/* import dynamically so it's client-only */}
+        <DbStatusBadge />
+      </div>
       {rows.length === 0 ? (
         <p className="opacity-80">No messages yet.</p>
       ) : (
