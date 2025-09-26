@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 
+export const runtime = 'edge';
+
 export async function GET() {
   try {
     // simple query to validate connection
