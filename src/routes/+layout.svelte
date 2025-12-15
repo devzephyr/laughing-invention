@@ -4,8 +4,12 @@
 	let { children } = $props();
 </script>
 
+<a href="#main-content" class="skip-to-main">Skip to main content</a>
+
 <div class="app">
-	{@render children()}
+	<main id="main-content">
+		{@render children()}
+	</main>
 </div>
 
 <style>

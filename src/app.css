@@ -1,6 +1,6 @@
 /* Natural.co Design System */
 :root {
-	/* Colors */
+	/* Colors - Light Mode */
 	--color-natural: #6a77e5;
 	--color-natural-medium: #e4e6f4;
 	--color-natural-light: #eceefa;
@@ -130,8 +130,109 @@ a:hover {
 }
 
 .content-container {
-	max-width: 720px;
+	max-width: 540px;
 	margin: 0 auto;
+}
+
+/* Blog post images - clickable zoom */
+article img {
+	cursor: zoom-in;
+	transition: opacity 0.2s ease;
+	border: 1px solid var(--color-slate-150);
+	border-radius: 4px;
+}
+
+article img:hover {
+	opacity: 0.9;
+}
+
+article img:focus {
+	outline: 2px solid var(--lavender-500);
+	outline-offset: 2px;
+}
+
+/* Lightbox overlay */
+.lightbox {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.95);
+	z-index: 9999;
+	justify-content: center;
+	align-items: center;
+	cursor: zoom-out;
+	padding: 40px;
+}
+
+.lightbox.active {
+	display: flex;
+}
+
+.lightbox img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	border: none;
+	cursor: zoom-out;
+}
+
+.lightbox-close {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	color: white;
+	font-size: 40px;
+	font-weight: 300;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 10px;
+	line-height: 1;
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+}
+
+.lightbox-close:hover {
+	opacity: 1;
+}
+
+/* Accessibility: Focus styles */
+a:focus-visible,
+button:focus-visible {
+	outline: 2px solid var(--lavender-500);
+	outline-offset: 2px;
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Accessibility: Skip to main content */
+.skip-to-main {
+	position: absolute;
+	left: -9999px;
+	z-index: 999;
+	padding: var(--spacing-4);
+	background-color: var(--lavender-500);
+	color: white;
+	text-decoration: none;
+	font-family: var(--font-gt-standard-mono);
+}
+
+.skip-to-main:focus {
+	left: 50%;
+	top: var(--spacing-4);
+	transform: translateX(-50%);
 }
 
 .divider {

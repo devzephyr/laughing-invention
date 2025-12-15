@@ -1,7 +1,50 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
+	let lightboxActive = $state(false);
+	let lightboxSrc = $state('');
+
+	onMount(() => {
+		// Add click handlers to all images in the post
+		const images = document.querySelectorAll('.post-content img');
+		images.forEach((img) => {
+			img.addEventListener('click', (e) => {
+				const target = e.target as HTMLImageElement;
+				lightboxSrc = target.src;
+				lightboxActive = true;
+			});
+
+			// Add keyboard support
+			img.setAttribute('tabindex', '0');
+			img.setAttribute('role', 'button');
+			img.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					const target = e.target as HTMLImageElement;
+					lightboxSrc = target.src;
+					lightboxActive = true;
+				}
+			});
+		});
+
+		// Close lightbox on ESC key
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && lightboxActive) {
+				closeLightbox();
+			}
+		};
+		window.addEventListener('keydown', handleEscape);
+
+		return () => {
+			window.removeEventListener('keydown', handleEscape);
+		};
+	});
+
+	function closeLightbox() {
+		lightboxActive = false;
+	}
 </script>
 
 <svelte:head>
@@ -32,6 +75,22 @@
 		</div>
 	</article>
 </div>
+
+<!-- Lightbox -->
+{#if lightboxActive}
+	<div
+		class="lightbox active"
+		onclick={closeLightbox}
+		role="dialog"
+		aria-modal="true"
+		aria-label="Image viewer"
+	>
+		<button class="lightbox-close" onclick={closeLightbox} aria-label="Close image viewer">&times;</button>
+		{#if lightboxSrc}
+			<img src={lightboxSrc} alt="Zoomed screenshot" />
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.blog-post {

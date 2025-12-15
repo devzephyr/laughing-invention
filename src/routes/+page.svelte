@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 
 	let serverStatus = $state({
 		online: true,
@@ -77,13 +80,17 @@
 			<a href="/blog" class="mono secondary view-all">View all →</a>
 		</div>
 		<div class="blog-grid">
-			<article class="blog-card">
-				<time class="mono tertiary">2024-12-14</time>
-				<h3 class="mono primary">
-					<a href="/blog/getting-started">Getting Started</a>
-				</h3>
-				<p class="mono secondary">Welcome to the cybersecurity blog. Start writing your first post in /src/posts/</p>
-			</article>
+			{#if data.latestPost}
+				<article class="blog-card">
+					<time class="mono tertiary">{data.latestPost.date}</time>
+					<h3 class="mono primary">
+						<a href="/blog/{data.latestPost.slug}">{data.latestPost.title}</a>
+					</h3>
+					<p class="mono secondary">{data.latestPost.description}</p>
+				</article>
+			{:else}
+				<p class="mono secondary">No posts yet. Start writing in /src/posts/</p>
+			{/if}
 		</div>
 	</section>
 
