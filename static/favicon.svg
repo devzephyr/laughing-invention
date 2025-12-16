@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6a77e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#302ba6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Shield outline -->
+  <path d="M50 5 L85 20 L85 45 Q85 70 50 95 Q15 70 15 45 L15 20 Z"
+        fill="url(#shieldGradient)"
+        stroke="#1e1e1e"
+        stroke-width="2"/>
+
+  <!-- Terminal prompt symbol -->
+  <g fill="#ffffff">
+    <!-- > symbol -->
+    <path d="M35 35 L45 42 L35 49 L38 52 L52 42 L38 32 Z"/>
+    <!-- _ underscore -->
+    <rect x="55" y="48" width="15" height="3"/>
+  </g>
+</svg>
