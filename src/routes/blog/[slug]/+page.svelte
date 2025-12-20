@@ -29,6 +29,66 @@
 			});
 		});
 
+		// Add copy buttons to code blocks
+		const codeBlocks = document.querySelectorAll('.post-content pre');
+		codeBlocks.forEach((pre) => {
+			const wrapper = document.createElement('div');
+			wrapper.className = 'code-block-wrapper';
+
+			const copyButton = document.createElement('button');
+			copyButton.className = 'copy-code-button';
+			copyButton.innerHTML = 'Copy';
+			copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+			copyButton.addEventListener('click', async () => {
+				const code = pre.querySelector('code');
+				const text = code?.textContent || '';
+
+				try {
+					await navigator.clipboard.writeText(text);
+					copyButton.innerHTML = 'Copied!';
+					copyButton.classList.add('copied');
+
+					setTimeout(() => {
+						copyButton.innerHTML = 'Copy';
+						copyButton.classList.remove('copied');
+					}, 2000);
+				} catch (err) {
+					console.error('Failed to copy:', err);
+					copyButton.innerHTML = 'Failed';
+					setTimeout(() => {
+						copyButton.innerHTML = 'Copy';
+					}, 2000);
+				}
+			});
+
+			pre.parentNode?.insertBefore(wrapper, pre);
+			wrapper.appendChild(pre);
+			wrapper.appendChild(copyButton);
+		});
+
+		// Highlight links when they're in viewport
+		const links = document.querySelectorAll('.post-content a');
+		const observerOptions = {
+			root: null,
+			rootMargin: '0px',
+			threshold: 0.5
+		};
+
+		const linkObserver = new IntersectionObserver((entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('in-view');
+				} else {
+					entry.target.classList.remove('in-view');
+				}
+			});
+		}, observerOptions);
+
+		links.forEach((link) => {
+			linkObserver.observe(link);
+		});
+
 		// Close lightbox on ESC key
 		const handleEscape = (e: KeyboardEvent) => {
 			if (e.key === 'Escape' && lightboxActive) {
@@ -39,6 +99,7 @@
 
 		return () => {
 			window.removeEventListener('keydown', handleEscape);
+			linkObserver.disconnect();
 		};
 	});
 
@@ -186,6 +247,57 @@
 		border: var(--border-base) solid var(--color-slate-150);
 	}
 
+	/* Code block with copy button */
+	.post-content :global(.code-block-wrapper) {
+		position: relative;
+		margin: var(--spacing-6) 0;
+	}
+
+	.post-content :global(.code-block-wrapper pre) {
+		margin: 0;
+	}
+
+	.post-content :global(.copy-code-button) {
+		position: absolute;
+		top: var(--spacing-2);
+		right: var(--spacing-2);
+		padding: var(--spacing-1) var(--spacing-3);
+		background-color: var(--color-slate-100);
+		border: var(--border-base) solid var(--color-slate-200);
+		border-radius: var(--radius-sm);
+		font-family: var(--font-gt-standard-mono);
+		font-size: var(--text-xs);
+		color: var(--color-slate-600);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		opacity: 0.7;
+	}
+
+	.post-content :global(.copy-code-button:hover) {
+		opacity: 1;
+		background-color: var(--color-slate-150);
+		border-color: var(--color-slate-300);
+	}
+
+	.post-content :global(.copy-code-button.copied) {
+		background-color: var(--color-natural-light);
+		border-color: var(--color-natural);
+		color: var(--color-natural);
+	}
+
+	.post-content :global(.copy-code-button:active) {
+		transform: scale(0.95);
+	}
+
+	/* Links in viewport highlighting */
+	.post-content :global(a.in-view) {
+		color: var(--lavender-500);
+	}
+
+	.post-content :global(a:hover) {
+		color: var(--lavender-700);
+	}
+
 	@media (max-width: 768px) {
 		.blog-post {
 			padding: var(--spacing-8) var(--spacing-4);
@@ -193,6 +305,10 @@
 
 		.post-header h1 {
 			font-size: var(--text-xl);
+		}
+
+		.post-content :global(.copy-code-button) {
+			opacity: 1;
 		}
 	}
 </style>
