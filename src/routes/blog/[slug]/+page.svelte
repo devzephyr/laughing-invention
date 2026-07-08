@@ -247,6 +247,47 @@
 		border: var(--border-base) solid var(--color-slate-150);
 	}
 
+	/* Tables */
+	.post-content :global(table) {
+		width: 100%;
+		border-collapse: collapse;
+		margin: var(--spacing-8) 0;
+		font-size: var(--text-sm);
+		line-height: var(--leading-normal);
+	}
+
+	.post-content :global(th),
+	.post-content :global(td) {
+		padding: var(--spacing-3) var(--spacing-4);
+		border: var(--border-base) solid var(--color-slate-200);
+		text-align: left;
+		vertical-align: top;
+	}
+
+	.post-content :global(th) {
+		background-color: var(--color-slate-100);
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	/* Let wide tables breathe past the 800px text column on large screens */
+	@media (min-width: 1100px) {
+		.post-content :global(table) {
+			width: calc(100% + 220px);
+			margin-left: -110px;
+			margin-right: -110px;
+		}
+	}
+
+	/* Fall back to horizontal scroll if a table still overflows */
+	@media (max-width: 640px) {
+		.post-content :global(table) {
+			display: block;
+			overflow-x: auto;
+			white-space: nowrap;
+		}
+	}
+
 	/* Code block with copy button */
 	.post-content :global(.code-block-wrapper) {
 		position: relative;
