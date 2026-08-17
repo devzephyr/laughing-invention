@@ -7,7 +7,7 @@ tags: ["kimai", "access-control", "broken-authorization", "symfony", "cwe-862", 
 
 I found a missing authorization check in Kimai, the open-source time tracker. The project overview report returns a 403 to a user without reporting permission. The export route beside it returns the data. Any authenticated account, down to a plain ROLE_USER on stock permissions, could request that route and download a spreadsheet the report itself would refuse to show.
 
-Kevin Papst, Kimai's maintainer, assigned it advisory GHSA-pvc4-crg3-gj44, rated it Low, and shipped the fix in 2.64.0. The rating is Low because the data that leaks is metadata rather than money. Two things earn a walk-through here: how the guard ended up on the wrong method, and how I mishandled the disclosure.
+Kevin Papst, Kimai's maintainer, assigned it advisory GHSA-pvc4-crg3-gj44, rated it Low, and shipped the fix in 2.64.0. The rating is Low because the data that leaks is metadata rather than money. What earns a walk-through is how the guard ended up on the wrong method, and why the pattern that put it there keeps recurring in Symfony controllers.
 
 ## What Kimai Is
 
@@ -63,8 +63,6 @@ Every other reporting controller in Kimai that exposes an export route places it
 **Step 3: Request the export route directly.** `report_project_view_export` runs without an `IsGranted` check, calls `getData()`, and builds the project overview.
 
 **Step 4: Download the data.** The spreadsheet holds the project overview across every customer.
-
-No injection, no crafted payload, no session theft. You request the route the class forgot to guard and it returns the file.
 
 ## What the Export Exposes
 
@@ -133,13 +131,7 @@ A Kimai instance with trusted internal users only carries low practical risk. A 
 
 ## Disclosure
 
-I mishandled this part, and the advisory states it in plain text: the issue went public through a pull request in the Kimai repository before a fix existed.
-
-A security report has to stay private until a patched version ships, because the report is the risk. I opened a PR with the details instead of keeping the finding inside GitHub's private advisory workflow. From the moment that PR was visible, anyone could read what the bug was and how to reach it while every Kimai install was still unpatched. Kevin cut a release on a Sunday, during a family vacation, to close the window I opened.
-
-For an ordinary bug, a public PR is the right move, and maintainers welcome it. A security issue runs on the reverse rule: private until the fix ships. I understand that difference now in a way I did not before I made a maintainer scramble on his day off.
-
-Kevin accepted the report, moved the guards to the class, published GHSA-pvc4-crg3-gj44, and requested a CVE. No CVE has been assigned as of publication. GHSA-pvc4-crg3-gj44 is the reference for this issue, and it is the identifier that matters anyway: the advisory is what tells operators what broke and which version fixes it.
+Kevin accepted the report, moved the guards to the class, published GHSA-pvc4-crg3-gj44, and requested a CVE. No CVE has been assigned as of publication, so GHSA-pvc4-crg3-gj44 is the reference for this issue.
 
 ## References
 
@@ -150,7 +142,3 @@ Kevin accepted the report, moved the guards to the class, published GHSA-pvc4-cr
 **Project & Fix:**
 - [Kimai on GitHub](https://github.com/kimai/kimai)
 - [PR #6115: move permission check to controller level to match other reports](https://github.com/kimai/kimai/pull/6115)
-
----
-
-Kimai guarded the report and left the export beside it uncovered, one `IsGranted` attribute scoped to a method instead of the class. Scope the guard to the controller, so every route that reaches the data inherits it.
