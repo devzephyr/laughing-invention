@@ -269,7 +269,7 @@ Good luck with that.
 
 ## Why This Is Not User Error (It's Developer Negligence)
 
-Let's address the inevitable victim-blaming: "They should have verified the full address!" "They should have used a hardware wallet!" "They should have—"
+Let's address the inevitable victim-blaming: "They should have verified the full address!" "They should have used a hardware wallet!" "They should have, "
 
 No. Stop.
 

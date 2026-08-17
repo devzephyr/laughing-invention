@@ -28,8 +28,8 @@ Start with the evidence. The same underlying credential, or a strict subset of i
 | Roaming authenticator credential | W3C | 2019 | Made by a security key you plug in. Also "security key." |
 | Passkey | FIDO Alliance marketing | 2022 | Discoverable credential + user verification. The consumer word. |
 | Multi-device FIDO credential | FIDO / Apple / Google / MS | 2022 | The syncable kind, before "passkey" won. |
-| Synced passkey | Apple / Google / MS | 2022–2024 | Private key replicates via iCloud Keychain or Google Password Manager. |
-| Device-bound passkey | Enterprise / hardware | 2022–2023 | Private key never leaves the authenticator. |
+| Synced passkey | Apple / Google / MS | 2022 to 2024 | Private key replicates via iCloud Keychain or Google Password Manager. |
+| Device-bound passkey | Enterprise / hardware | 2022 to 2023 | Private key never leaves the authenticator. |
 | Single-device / hardware-bound credential | Enterprise | 2023 | The device-bound kind, under yet another name. |
 
 That table holds fourteen labels for one family of credential. Resident key, discoverable credential, and client-side discoverable credential name one identical concept. A passkey is a discoverable credential with user verification required, so it sits as a subset. Multi-device FIDO credential became synced passkey with no change to the bytes. The wire format held still while the vocabulary forked.
