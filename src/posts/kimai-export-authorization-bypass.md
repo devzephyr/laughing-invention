@@ -1,6 +1,6 @@
 ---
 title: "Kimai Guarded the Report and Forgot the Export"
-description: "Kimai locked its project report behind a permission check and left the export route beside it open. Any logged-in user could download customer names, project names, and budget metadata across every customer. Advisory GHSA-pvc4-crg3-gj44, patched in 2.64.0."
+description: "Kimai locked its project report behind a permission check and left the export route beside it open. Any logged-in user could download customer names, project names, and budget metadata across every customer. Advisory GHSA-pvc4-crg3-gj44, CVE-2026-80194, patched in 2.64.0."
 date: "2026-08-17"
 tags: ["kimai", "access-control", "broken-authorization", "symfony", "cwe-862", "web-security"]
 ---
@@ -131,13 +131,17 @@ A Kimai instance with trusted internal users only carries low practical risk. A 
 
 ## Disclosure
 
-Kevin accepted the report, moved the guards to the class, published GHSA-pvc4-crg3-gj44, and requested a CVE. No CVE has been assigned as of publication, so GHSA-pvc4-crg3-gj44 is the reference for this issue.
+Kevin accepted the report, moved the guards to the class, published GHSA-pvc4-crg3-gj44, and requested a CVE. That CVE is now assigned: **CVE-2026-80194**, published to NVD on 2026-08-26. Both IDs point at the same controller-level guard, so cite whichever your scanner understands.
+
+The scoring disagrees with itself. Kimai rated the advisory Low, which matches what the export actually gives up. The CVE record carries CVSS 4.0 at 8.7 High and CVSS 3.1 at 4.3 Medium, both from VulnCheck as the publishing CNA. Same missing check, three numbers, and the spread comes down to how much weight each scorer put on the financial fields the export template kept guarded.
 
 ## References
 
 **Primary Source:**
 - [GitHub Security Advisory GHSA-pvc4-crg3-gj44](https://github.com/kimai/kimai/security/advisories/GHSA-pvc4-crg3-gj44)
 - [Kimai Security Advisory Page](https://www.kimai.org/en/security/ghsa-pvc4-crg3-gj44)
+- [NVD: CVE-2026-80194](https://nvd.nist.gov/vuln/detail/CVE-2026-80194)
+- [VulnCheck: Kimai before 2.64.0 missing authorization via ProjectViewController export](https://www.vulncheck.com/advisories/kimai-before-2.64.0-missing-authorization-via-projectviewcontroller-export)
 
 **Project & Fix:**
 - [Kimai on GitHub](https://github.com/kimai/kimai)
