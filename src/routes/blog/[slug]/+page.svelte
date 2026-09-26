@@ -262,6 +262,8 @@
 		border: var(--border-base) solid var(--color-slate-200);
 		text-align: left;
 		vertical-align: top;
+		word-break: break-word;
+		overflow-wrap: anywhere;
 	}
 
 	.post-content :global(th) {
@@ -270,14 +272,8 @@
 		white-space: nowrap;
 	}
 
-	/* Let wide tables breathe past the 800px text column on large screens */
-	@media (min-width: 1100px) {
-		.post-content :global(table) {
-			width: calc(100% + 220px);
-			margin-left: -110px;
-			margin-right: -110px;
-		}
-	}
+	/* Tables are held to the exact width of the text column at every viewport.
+	   No bleed past the text edges: a table that cannot fit wraps or scrolls. */
 
 	/* Fall back to horizontal scroll if a table still overflows */
 	@media (max-width: 640px) {
