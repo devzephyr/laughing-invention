@@ -39,7 +39,7 @@
 
 <style>
 	header {
-		padding: var(--spacing-16) 0 var(--spacing-8) 0;
+		padding: var(--spacing-16) var(--spacing-4) var(--spacing-8);
 	}
 
 	header h1 {
@@ -52,15 +52,45 @@
 		gap: var(--spacing-8);
 	}
 
+	/* The title link stretches over the whole card, so the card is the link */
 	.post-card {
+		position: relative;
 		border: var(--border-base) solid var(--color-slate-150);
 		border-radius: var(--radius-md);
 		padding: var(--spacing-6);
-		transition: border-color var(--transition-base);
+		transition:
+			border-color var(--transition-base),
+			transform var(--transition-press);
 	}
 
-	.post-card:hover {
+	.post-card h2 a::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+
+	.post-card:active {
 		border-color: var(--color-natural);
+		transform: scale(0.98);
+	}
+
+	.post-card:has(a:focus-visible) {
+		outline: 2px solid var(--lavender-500);
+		outline-offset: 2px;
+	}
+
+	.post-card h2 a:focus-visible {
+		outline: none;
+	}
+
+	@media (hover: hover) {
+		.post-card:hover {
+			border-color: var(--color-natural);
+		}
+
+		.post-card:hover h2 a {
+			color: var(--color-natural);
+		}
 	}
 
 	.post-card time {
@@ -71,10 +101,6 @@
 
 	.post-card h2 {
 		margin-bottom: var(--spacing-3);
-	}
-
-	.post-card h2 a:hover {
-		color: var(--color-natural);
 	}
 
 	.post-card p {
@@ -92,11 +118,5 @@
 		padding: var(--spacing-1) var(--spacing-3);
 		border-radius: var(--radius-full);
 		font-size: var(--text-xs);
-	}
-
-	@media (max-width: 768px) {
-		.content-container {
-			padding: 0 var(--spacing-4);
-		}
 	}
 </style>

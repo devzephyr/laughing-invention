@@ -5,7 +5,7 @@ import { createHighlighter } from "shiki";
 
 // Create syntax highlighter with common languages for security research
 const highlighter = await createHighlighter({
-  themes: ["github-light"],
+  themes: ["github-light", "github-dark"],
   langs: [
     "javascript",
     "typescript",
@@ -40,7 +40,8 @@ const config = {
           try {
             const html = highlighter.codeToHtml(code, {
               lang: lang || "text",
-              theme: "github-light",
+              // Light colors inline; dark ones as --shiki-dark vars, swapped in app.css
+              themes: { light: "github-light", dark: "github-dark" },
             });
             return `{@html \`${html}\` }`;
           } catch (e) {

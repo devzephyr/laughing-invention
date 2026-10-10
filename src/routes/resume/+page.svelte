@@ -21,8 +21,6 @@
 			</p>
 		</section>
 
-		<div class="divider"></div>
-
 		<section class="section">
 			<h2 class="mono primary">Experience</h2>
 
@@ -66,8 +64,6 @@
 			</div>
 		</section>
 
-		<div class="divider"></div>
-
 		<section class="section">
 			<h2 class="mono primary">Education</h2>
 
@@ -90,8 +86,6 @@
 				<p class="mono secondary">Aptech Learning, Lagos, Nigeria</p>
 			</div>
 		</section>
-
-		<div class="divider"></div>
 
 		<section class="section">
 			<h2 class="mono primary">Projects</h2>
@@ -132,8 +126,6 @@
 				</ul>
 			</div>
 		</section>
-
-		<div class="divider"></div>
 
 		<section class="section">
 			<h2 class="mono primary">Technical Skills</h2>
@@ -210,8 +202,6 @@
 			</div>
 		</section>
 
-		<div class="divider"></div>
-
 		<section class="section">
 			<h2 class="mono primary">Extra-curricular</h2>
 			<div class="experience-item">
@@ -233,8 +223,6 @@
 
 <style>
 	.resume {
-		max-width: 800px;
-		margin: 0 auto;
 		padding: var(--spacing-16) var(--spacing-4);
 	}
 

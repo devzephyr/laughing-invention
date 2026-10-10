@@ -1,41 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-
-	let serverStatus = $state({
-		online: true,
-		uptime: '99.9%',
-		responseTime: '45ms'
-	});
-
-	onMount(() => {
-		// Fetch server health on mount
-		checkServerHealth();
-	});
-
-	async function checkServerHealth() {
-		try {
-			const start = Date.now();
-			const response = await fetch('/api/health');
-			const end = Date.now();
-
-			if (response.ok) {
-				serverStatus = {
-					online: true,
-					uptime: '99.9%',
-					responseTime: `${end - start}ms`
-				};
-			}
-		} catch (error) {
-			serverStatus = {
-				online: false,
-				uptime: 'N/A',
-				responseTime: 'N/A'
-			};
-		}
-	}
 </script>
 
 <svelte:head>
@@ -49,29 +15,6 @@
 		<h1 class="mono primary">Security Research</h1>
 		<p class="mono secondary">Vulnerability analysis, exploits, and proof of concepts</p>
 	</header>
-
-	<!-- Server Health Section -->
-	<section class="section">
-		<h2 class="mono primary">Server Health</h2>
-		<div class="health-grid">
-			<div class="health-item">
-				<span class="mono tertiary">Status</span>
-				<span class="mono primary status" class:online={serverStatus.online} class:offline={!serverStatus.online}>
-					{serverStatus.online ? 'Online' : 'Offline'}
-				</span>
-			</div>
-			<div class="health-item">
-				<span class="mono tertiary">Uptime</span>
-				<span class="mono primary">{serverStatus.uptime}</span>
-			</div>
-			<div class="health-item">
-				<span class="mono tertiary">Response Time</span>
-				<span class="mono primary">{serverStatus.responseTime}</span>
-			</div>
-		</div>
-	</section>
-
-	<div class="divider"></div>
 
 	<!-- Blog Section -->
 	<section class="section">
@@ -94,8 +37,6 @@
 		</div>
 	</section>
 
-	<div class="divider"></div>
-
 	<!-- Recommendations Section -->
 	<section class="section">
 		<h2 class="mono primary">Reading List</h2>
@@ -117,8 +58,6 @@
 		</div>
 	</section>
 
-	<div class="divider"></div>
-
 	<!-- Resume/Credentials Section -->
 	<section class="section">
 		<div class="section-header">
@@ -131,22 +70,20 @@
 		</p>
 	</section>
 
-	<div class="divider"></div>
-
 	<!-- Social Links -->
 	<footer class="section">
 		<h2 class="mono tertiary">Connect</h2>
 		<div class="social-links">
 			<a href="https://www.linkedin.com/in/adeyemi-folarin/" class="mono secondary" target="_blank" rel="noopener">LinkedIn</a>
 			<a href="https://github.com/devzephyr" class="mono secondary" target="_blank" rel="noopener">GitHub</a>
-			<a href="mailto:adeyemfolarin@icloud.com" class="mono secondary">Email</a>
+			<a href="mailto:folarinabdul30@gmail.com" class="mono secondary">Email</a>
 		</div>
 	</footer>
 </div>
 
 <style>
 	header {
-		padding: var(--spacing-16) 0 var(--spacing-8) 0;
+		padding: var(--spacing-16) var(--spacing-4) var(--spacing-8);
 	}
 
 	header h1 {
@@ -160,43 +97,22 @@
 		margin-bottom: var(--spacing-6);
 	}
 
-	.view-all {
-		font-family: var(--font-gt-standard-mono);
-		font-size: 14px;
-		font-weight: 400;
+	.view-all,
+	.social-links a {
 		color: var(--lavender-500);
-		cursor: pointer;
-		text-decoration: none;
-		transition: color 0.1s ease-out;
+		transition: color var(--transition-press);
 	}
 
-	.view-all:hover {
+	.view-all:active,
+	.social-links a:active {
 		color: var(--lavender-700);
 	}
 
-	.health-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: var(--spacing-8);
-		margin-top: var(--spacing-6);
-	}
-
-	.health-item {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-2);
-	}
-
-	.status {
-		font-weight: var(--font-medium);
-	}
-
-	.status.online {
-		color: #22c55e;
-	}
-
-	.status.offline {
-		color: var(--color-fire);
+	@media (hover: hover) {
+		.view-all:hover,
+		.social-links a:hover {
+			color: var(--lavender-700);
+		}
 	}
 
 	.blog-grid {
@@ -205,15 +121,45 @@
 		margin-top: var(--spacing-6);
 	}
 
+	/* The title link stretches over the whole card, so the card is the link */
 	.blog-card {
+		position: relative;
 		border: var(--border-base) solid var(--color-slate-150);
 		border-radius: var(--radius-md);
 		padding: var(--spacing-6);
-		transition: border-color var(--transition-base);
+		transition:
+			border-color var(--transition-base),
+			transform var(--transition-press);
 	}
 
-	.blog-card:hover {
+	.blog-card h3 a::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+
+	.blog-card:active {
 		border-color: var(--color-natural);
+		transform: scale(0.98);
+	}
+
+	.blog-card:has(a:focus-visible) {
+		outline: 2px solid var(--lavender-500);
+		outline-offset: 2px;
+	}
+
+	.blog-card h3 a:focus-visible {
+		outline: none;
+	}
+
+	@media (hover: hover) {
+		.blog-card:hover {
+			border-color: var(--color-natural);
+		}
+
+		.blog-card:hover h3 a {
+			color: var(--color-natural);
+		}
 	}
 
 	.blog-card time {
@@ -224,10 +170,6 @@
 
 	.blog-card h3 {
 		margin-bottom: var(--spacing-3);
-	}
-
-	.blog-card h3 a:hover {
-		color: var(--color-natural);
 	}
 
 	.recommendations-grid {
@@ -256,30 +198,11 @@
 		flex-wrap: wrap;
 	}
 
-	.social-links a {
-		font-family: var(--font-gt-standard-mono);
-		font-size: 14px;
-		font-weight: 400;
-		color: var(--lavender-500);
-		cursor: pointer;
-		text-decoration: none;
-		transition: color 0.1s ease-out;
-	}
-
-	.social-links a:hover {
-		color: var(--lavender-700);
-	}
-
 	footer {
 		padding-bottom: var(--spacing-16);
 	}
 
 	@media (max-width: 768px) {
-		.content-container {
-			padding: 0 var(--spacing-4);
-		}
-
-		.health-grid,
 		.recommendations-grid {
 			grid-template-columns: 1fr;
 		}

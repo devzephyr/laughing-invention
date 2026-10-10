@@ -1,20 +1,58 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-	let lightboxActive = $state(false);
+	let lightbox: HTMLDialogElement;
 	let lightboxSrc = $state('');
+	let lightboxAlt = $state('');
+	let sourceImage: HTMLImageElement | null = null;
+
+	// The zoomed image grows out of the thumbnail and shrinks back into it.
+	// Browsers without the View Transitions API just open and close instantly.
+	function runTransition(update: () => void | Promise<void>): Promise<void> {
+		if (!document.startViewTransition) {
+			return Promise.resolve(update());
+		}
+		return document.startViewTransition(update).finished;
+	}
+
+	function openLightbox(img: HTMLImageElement) {
+		sourceImage = img;
+		img.style.viewTransitionName = 'lightbox-image';
+		runTransition(async () => {
+			img.style.viewTransitionName = '';
+			lightboxSrc = img.currentSrc || img.src;
+			lightboxAlt = img.alt;
+			await tick();
+			lightbox.showModal();
+		});
+	}
+
+	function closeLightbox() {
+		if (!lightbox.open) return;
+		const img = sourceImage;
+		runTransition(() => {
+			lightbox.close();
+			if (img) img.style.viewTransitionName = 'lightbox-image';
+		}).finally(() => {
+			if (!img) return;
+			img.style.viewTransitionName = '';
+			// Hand focus back to the image that opened the viewer
+			img.focus({ preventScroll: true });
+		});
+	}
+
+	// Esc: run the same animated close instead of the dialog's instant one
+	function handleCancel(e: Event) {
+		e.preventDefault();
+		closeLightbox();
+	}
 
 	onMount(() => {
-		// Add click handlers to all images in the post
-		const images = document.querySelectorAll('.post-content img');
+		const images = document.querySelectorAll<HTMLImageElement>('.post-content img');
 		images.forEach((img) => {
-			img.addEventListener('click', (e) => {
-				const target = e.target as HTMLImageElement;
-				lightboxSrc = target.src;
-				lightboxActive = true;
-			});
+			img.addEventListener('click', () => openLightbox(img));
 
 			// Add keyboard support
 			img.setAttribute('tabindex', '0');
@@ -22,9 +60,7 @@
 			img.addEventListener('keydown', (e) => {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
-					const target = e.target as HTMLImageElement;
-					lightboxSrc = target.src;
-					lightboxActive = true;
+					openLightbox(img);
 				}
 			});
 		});
@@ -37,8 +73,9 @@
 
 			const copyButton = document.createElement('button');
 			copyButton.className = 'copy-code-button';
-			copyButton.innerHTML = 'Copy';
-			copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+			copyButton.textContent = 'Copy';
+			// Screen readers announce the Copied!/Failed text change
+			copyButton.setAttribute('aria-live', 'polite');
 
 			copyButton.addEventListener('click', async () => {
 				const code = pre.querySelector('code');
@@ -46,18 +83,18 @@
 
 				try {
 					await navigator.clipboard.writeText(text);
-					copyButton.innerHTML = 'Copied!';
+					copyButton.textContent = 'Copied!';
 					copyButton.classList.add('copied');
 
 					setTimeout(() => {
-						copyButton.innerHTML = 'Copy';
+						copyButton.textContent = 'Copy';
 						copyButton.classList.remove('copied');
 					}, 2000);
 				} catch (err) {
 					console.error('Failed to copy:', err);
-					copyButton.innerHTML = 'Failed';
+					copyButton.textContent = 'Failed';
 					setTimeout(() => {
-						copyButton.innerHTML = 'Copy';
+						copyButton.textContent = 'Copy';
 					}, 2000);
 				}
 			});
@@ -66,46 +103,7 @@
 			wrapper.appendChild(pre);
 			wrapper.appendChild(copyButton);
 		});
-
-		// Highlight links when they're in viewport
-		const links = document.querySelectorAll('.post-content a');
-		const observerOptions = {
-			root: null,
-			rootMargin: '0px',
-			threshold: 0.5
-		};
-
-		const linkObserver = new IntersectionObserver((entries) => {
-			entries.forEach((entry) => {
-				if (entry.isIntersecting) {
-					entry.target.classList.add('in-view');
-				} else {
-					entry.target.classList.remove('in-view');
-				}
-			});
-		}, observerOptions);
-
-		links.forEach((link) => {
-			linkObserver.observe(link);
-		});
-
-		// Close lightbox on ESC key
-		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && lightboxActive) {
-				closeLightbox();
-			}
-		};
-		window.addEventListener('keydown', handleEscape);
-
-		return () => {
-			window.removeEventListener('keydown', handleEscape);
-			linkObserver.disconnect();
-		};
 	});
-
-	function closeLightbox() {
-		lightboxActive = false;
-	}
 </script>
 
 <svelte:head>
@@ -137,26 +135,22 @@
 	</article>
 </div>
 
-<!-- Lightbox -->
-{#if lightboxActive}
-	<div
-		class="lightbox active"
-		onclick={closeLightbox}
-		role="dialog"
-		aria-modal="true"
-		aria-label="Image viewer"
-	>
-		<button class="lightbox-close" onclick={closeLightbox} aria-label="Close image viewer">&times;</button>
-		{#if lightboxSrc}
-			<img src={lightboxSrc} alt="Zoomed screenshot" />
-		{/if}
-	</div>
-{/if}
+<!-- Lightbox: any click closes it; the button is there for keyboard and screen readers -->
+<dialog
+	class="lightbox"
+	bind:this={lightbox}
+	onclick={closeLightbox}
+	oncancel={handleCancel}
+	aria-label="Image viewer"
+>
+	<button class="lightbox-close" aria-label="Close image viewer">&times;</button>
+	{#if lightboxSrc}
+		<img src={lightboxSrc} alt={lightboxAlt} />
+	{/if}
+</dialog>
 
 <style>
 	.blog-post {
-		max-width: 800px;
-		margin: 0 auto;
 		padding: var(--spacing-16) var(--spacing-4);
 	}
 
@@ -172,7 +166,7 @@
 		font-size: var(--text-sm);
 	}
 
-	.back-link:hover {
+	.back-link:active {
 		color: var(--color-natural);
 	}
 
@@ -306,14 +300,8 @@
 		font-size: var(--text-xs);
 		color: var(--color-slate-600);
 		cursor: pointer;
-		transition: all var(--transition-fast);
+		transition: all var(--transition-press);
 		opacity: 0.7;
-	}
-
-	.post-content :global(.copy-code-button:hover) {
-		opacity: 1;
-		background-color: var(--color-slate-150);
-		border-color: var(--color-slate-300);
 	}
 
 	.post-content :global(.copy-code-button.copied) {
@@ -323,16 +311,35 @@
 	}
 
 	.post-content :global(.copy-code-button:active) {
-		transform: scale(0.95);
+		transform: scale(0.97);
 	}
 
-	/* Links in viewport highlighting */
-	.post-content :global(a.in-view) {
+	/* Underline as well as color, so links don't rely on color alone (WCAG 1.4.1) */
+	.post-content :global(a) {
 		color: var(--lavender-500);
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
 	}
 
-	.post-content :global(a:hover) {
+	.post-content :global(a:active) {
 		color: var(--lavender-700);
+	}
+
+	@media (hover: hover) {
+		.back-link:hover {
+			color: var(--color-natural);
+		}
+
+		.post-content :global(.copy-code-button:hover) {
+			opacity: 1;
+			background-color: var(--color-slate-150);
+			border-color: var(--color-slate-300);
+		}
+
+		.post-content :global(a:hover) {
+			color: var(--lavender-700);
+		}
 	}
 
 	@media (max-width: 768px) {
