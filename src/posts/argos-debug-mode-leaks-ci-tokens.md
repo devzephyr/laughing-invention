@@ -26,6 +26,8 @@ The `debug()` helper in `packages/core/src/debug.ts` is a thin wrapper around th
 
 Two more sites in `packages/core/src/upload.ts` (lines 191 and 216) log the full `params` and resolved `config` objects. Both contain the 40-character `ARGOS_TOKEN`.
 
+<iframe class="figure-frame" src="/figures/argos-debug-mode-leaks-ci-tokens.html" title="Interactive figure: opening DEBUG prints unscreened tokens onto the CI log" loading="lazy"></iframe>
+
 Here is the part that makes this a bug and not a design choice: the same package already redacts tokens in two other commands. `media.ts` and `deploy.ts` both do `const { token: _token, ...debugParams } = …` before logging. Whoever wrote those lines knew debug output must not carry tokens. The upload path and the CI-detection path missed the memo.
 
 And this debug mode is not some undocumented escape hatch. The [CLI reference](https://argos-ci.com/docs/reference/argos-command-line-interface-cli) tells users to enable it to inspect CI detection:

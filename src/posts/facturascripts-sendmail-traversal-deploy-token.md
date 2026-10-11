@@ -105,6 +105,8 @@ The advisories describe this as a chain, and that is the reason to care about bo
 3. Feed the password into `md5(db_name . db_user . db_password . date('Y-m-d H'))` and mint a valid Deploy token.
 4. Call `/Deploy?action=disable-plugins` with no session. The system goes offline.
 
+<iframe class="figure-frame" src="/figures/facturascripts-sendmail-traversal-deploy-token.html" title="Interactive figure: ../ climbs to config.php, and its password mints the Deploy key" loading="lazy"></iframe>
+
 The predictable-token advisory names bug one as the way to obtain the credentials it needs. The file read leaks the secret. The secret forges the signature. An employee account becomes a kill switch for the whole ERP. On 2026.65, bug one alone already reaches takeover, and step two is optional.
 
 The `rebuild` action uses the same token and regenerates `Dinamic/`, which holds compiled controller and model metadata. An attacker who alternates between `disable-plugins` and `rebuild` keeps the application cycling between broken states.

@@ -75,6 +75,8 @@ The attackers didn't use a supply chain dependency attack (like injecting malici
 
 The backdoor was hidden in `4482.js`, disguised as PostHog analytics integration. Here's the genius part: PostHog is a legitimate analytics library that Trust Wallet actually uses. The malicious code didn't inject a new dependency - it just modified how PostHog was initialized.
 
+<iframe class="figure-frame" src="/figures/trust-wallet-supply-chain-christmas-heist.html" title="Interactive figure: one api_host change re-points the existing analytics line" loading="lazy"></iframe>
+
 ![Malicious Code in 4482.js](/screenshots/trust-wallet-2.jpg)
 *The smoking gun - malicious code in Trust Wallet's 4482.js pointing to api.metrics-trustwallet.com for data exfiltration*
 
