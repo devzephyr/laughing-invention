@@ -2,29 +2,7 @@
 	import '../app.css';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import { page } from '$app/state';
-	import { onMount } from 'svelte';
-	import { afterNavigate } from '$app/navigation';
-
 	injectSpeedInsights();
-
-	// Interactive figures report their content height so each iframe fits without an inner scrollbar
-	const figureFrames = () => document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame');
-	onMount(() => {
-		const sizeFigure = (e: MessageEvent) => {
-			if (e.origin !== location.origin) return;
-			const height = e.data?.height;
-			if (typeof height !== 'number' || !Number.isFinite(height)) return;
-			for (const frame of figureFrames()) {
-				if (frame.contentWindow === e.source) frame.style.height = `${Math.ceil(height)}px`;
-			}
-		};
-		window.addEventListener('message', sizeFigure);
-		return () => window.removeEventListener('message', sizeFigure);
-	});
-	// A figure that loaded before the listener existed, or on the page just navigated to, is asked again
-	afterNavigate(() => {
-		for (const frame of figureFrames()) frame.contentWindow?.postMessage('figure:measure', location.origin);
-	});
 
 	let { children } = $props();
 

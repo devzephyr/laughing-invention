@@ -32,13 +32,12 @@ body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",mo
 // Runs before first paint, so the figure never flashes the wrong theme
 const THEME = `<script>(()=>{const m=matchMedia("(prefers-color-scheme: dark)");const set=()=>{document.body.dataset.theme=m.matches?"dark":"light"};set();m.addEventListener("change",set)})()</script>`;
 
-// The post page listens for this and sizes the iframe to fit, so there is no inner scrollbar.
-// The body's own box, not documentElement.scrollHeight, which never drops below the iframe's height.
-// The page may hydrate after this frame has already reported, so it can also ask for a fresh measurement.
-const resize = (slug) => `
-const reportHeight = () => parent.postMessage({ figure: ${JSON.stringify(slug)}, height: Math.ceil(document.body.getBoundingClientRect().height) }, "/");
-new ResizeObserver(reportHeight).observe(document.body);
-addEventListener("message", (e) => { if (e.origin === location.origin && e.data === "figure:measure") reportHeight(); });
+// Same-origin iframe: the figure sizes its own frame to fit its content, so there is no inner scrollbar
+// and no message passing to go wrong. Re-runs whenever the content reflows (width, zoom, fonts).
+const resize = () => `
+const fitFrame = () => { if (window.frameElement) window.frameElement.style.height = Math.ceil(document.body.getBoundingClientRect().height) + "px"; };
+new ResizeObserver(fitFrame).observe(document.body);
+fitFrame();
 `;
 
 // Only this page's own inline scripts may run: each is pinned by its SHA-256.
@@ -86,7 +85,7 @@ export function writeFigure(slug, { title, fig, hint = "Hover to scrub · arrows
   if (fix && body === plate) throw new Error("plateHtml markup changed: could not place the fix toggle");
   // A bare figure is the drawing alone: no card, corner labels, legend or controls
   if (bare) css += `.iso-plate{background:transparent;box-shadow:none;padding:0}.iso-plate-corners{display:none}`;
-  const html = pageHtml({ title, theme: "light", body, script: kitScript() + RUNTIME + live + resize(slug) })
+  const html = pageHtml({ title, theme: "light", body, script: kitScript() + RUNTIME + live + resize() })
     .replace("</style>", `${FRAME_CSS}${css}</style>`)
     .replace('<main class="iso-page">', `${THEME}<main class="iso-page">`);
   mkdirSync(OUT, { recursive: true });
