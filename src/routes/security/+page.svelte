@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { emailLink } from '$lib/email';
+</script>
+
 <svelte:head>
 	<title>Security Policy - Adeyemi Folarin</title>
 	<meta
@@ -14,7 +18,7 @@
 			<h2 class="mono primary">Report a vulnerability in this site</h2>
 			<p class="mono secondary">
 				If you find a security issue in <code>blog.adeyemi.xyz</code>, email
-				<a href="mailto:folarinabdul30@gmail.com">folarinabdul30@gmail.com</a> with the affected URL, the steps to
+				{@html emailLink()} with the affected URL, the steps to
 				reproduce it, and what an attacker could do with it.
 			</p>
 			<p class="mono secondary">

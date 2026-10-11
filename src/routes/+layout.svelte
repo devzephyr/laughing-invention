@@ -2,8 +2,29 @@
 	import '../app.css';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import { page } from '$app/state';
+	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 
 	injectSpeedInsights();
+
+	// Interactive figures report their content height so each iframe fits without an inner scrollbar
+	const figureFrames = () => document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame');
+	onMount(() => {
+		const sizeFigure = (e: MessageEvent) => {
+			if (e.origin !== location.origin) return;
+			const height = e.data?.height;
+			if (typeof height !== 'number' || !Number.isFinite(height)) return;
+			for (const frame of figureFrames()) {
+				if (frame.contentWindow === e.source) frame.style.height = `${Math.ceil(height)}px`;
+			}
+		};
+		window.addEventListener('message', sizeFigure);
+		return () => window.removeEventListener('message', sizeFigure);
+	});
+	// A figure that loaded before the listener existed, or on the page just navigated to, is asked again
+	afterNavigate(() => {
+		for (const frame of figureFrames()) frame.contentWindow?.postMessage('figure:measure', location.origin);
+	});
 
 	let { children } = $props();
 
@@ -32,7 +53,7 @@
 
 <div class="app">
 	<!-- Post pages are wider; the nav matches so their left edges line up -->
-	<nav class="site-nav content-container" class:wide={page.url.pathname.startsWith('/blog/')} aria-label="Site">
+	<nav class="site-nav content-container" class:wide={page.url.pathname.startsWith("/blog/") || page.status === 404} aria-label="Site">
 		{#each navItems as item}
 			<a
 				href={item.href}
@@ -45,6 +66,9 @@
 	<main id="main-content">
 		{@render children()}
 	</main>
+	<footer class="site-footer content-container" class:wide={page.url.pathname.startsWith("/blog/") || page.status === 404}>
+		<a href="/security" class="mono">Security policy</a>
+	</footer>
 </div>
 
 <style>
@@ -57,6 +81,19 @@
 		gap: var(--spacing-6);
 		padding: var(--spacing-6) var(--spacing-4) 0;
 		font-size: var(--text-sm);
+	}
+
+	.site-footer {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-6);
+		padding: var(--spacing-8) var(--spacing-4) var(--spacing-12);
+		border-top: var(--border-base) solid var(--color-slate-150);
+		font-size: var(--text-sm);
+	}
+
+	.site-footer a {
+		color: var(--color-slate-600);
 	}
 
 	.site-nav a {

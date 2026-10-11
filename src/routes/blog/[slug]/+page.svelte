@@ -57,6 +57,8 @@
 			// Add keyboard support
 			img.setAttribute('tabindex', '0');
 			img.setAttribute('role', 'button');
+			// A button's name replaces the image's alt, so carry the alt into the name
+			img.setAttribute('aria-label', `Enlarge image: ${img.alt || 'screenshot'}`);
 			img.addEventListener('keydown', (e) => {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
@@ -104,21 +106,6 @@
 			wrapper.appendChild(copyButton);
 		});
 
-		// Figures report their content height so each iframe fits without an inner scrollbar
-		const sizeFigure = (e: MessageEvent) => {
-			if (e.origin !== location.origin) return;
-			const height = e.data?.height;
-			if (typeof height !== 'number' || !Number.isFinite(height)) return;
-			for (const frame of document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame')) {
-				if (frame.contentWindow === e.source) frame.style.height = `${Math.ceil(height)}px`;
-			}
-		};
-		window.addEventListener('message', sizeFigure);
-		// A figure that loaded before this listener existed has already reported; ask it again
-		for (const frame of document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame')) {
-			frame.contentWindow?.postMessage('figure:measure', location.origin);
-		}
-		return () => window.removeEventListener('message', sizeFigure);
 	});
 </script>
 
@@ -306,6 +293,9 @@
 
 	.post-content :global(.copy-code-button) {
 		position: absolute;
+		/* Comfortably above the WCAG 2.2 24px target minimum */
+		min-height: 28px;
+		min-width: 44px;
 		top: var(--spacing-2);
 		right: var(--spacing-2);
 		padding: var(--spacing-1) var(--spacing-3);

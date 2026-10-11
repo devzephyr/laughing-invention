@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { emailLink } from '$lib/email';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -71,14 +72,14 @@
 	</section>
 
 	<!-- Social Links -->
-	<footer class="section">
+	<section class="section">
 		<h2 class="mono tertiary">Connect</h2>
 		<div class="social-links">
 			<a href="https://www.linkedin.com/in/adeyemi-folarin/" class="mono secondary" target="_blank" rel="noopener">LinkedIn</a>
 			<a href="https://github.com/devzephyr" class="mono secondary" target="_blank" rel="noopener">GitHub</a>
-			<a href="mailto:folarinabdul30@gmail.com" class="mono secondary">Email</a>
+			{@html emailLink('Email', 'mono secondary')}
 		</div>
-	</footer>
+	</section>
 </div>
 
 <style>

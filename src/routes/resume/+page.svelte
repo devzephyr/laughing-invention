@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { emailLink } from '$lib/email';
+</script>
+
 <svelte:head>
 	<title>Resume - Adeyemi Folarin</title>
 	<meta name="description" content="Cybersecurity student specializing in SIEM-based threat detection, digital forensics, and security assessment. Available Fall 2026 for co-op." />
@@ -9,8 +13,7 @@
 			<h1 class="mono primary">Adeyemi Folarin</h1>
 			<p class="mono secondary">North York, ON</p>
 			<div class="contact-info">
-				<a href="mailto:folarinabdul30@gmail.com" class="mono tertiary">folarinabdul30@gmail.com</a>
-				<span class="mono tertiary">+1-437-881-9415</span>
+				{@html emailLink(undefined, 'mono tertiary')}
 			</div>
 		</header>
 
