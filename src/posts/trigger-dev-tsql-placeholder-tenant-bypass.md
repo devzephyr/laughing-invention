@@ -3,6 +3,13 @@ title: "Curly Braces Around a Table Name Skipped Trigger.dev's Tenant Filter"
 description: "Trigger.dev runs background jobs and AI agents for more than 30,000 developers. Its query API adds an organization filter to each table, but a table name in {braces} skipped it, so any API key could read the rows of all tenants. The fix shipped in 4.7.3, one day after my report."
 date: "2026-10-08"
 tags: ["trigger-dev", "multi-tenant", "sql-injection", "cwe-863", "clickhouse", "web-security"]
+advisories:
+  - id: "GHSA-m79r-84cc-xwg9"
+    product: "Trigger.dev"
+    kind: "Tenant filter bypass"
+    affected: "4.7.2"
+    fixed: "4.7.3"
+    severity: "6.5"
 ---
 
 Trigger.dev runs background jobs and AI agents for more than 30,000 developers. Its SDK gets about 1.3 million npm downloads each week. Trigger.dev also lets you query your run data with SQL. You send the query to `POST /api/v1/query`. A compiler translates it to ClickHouse SQL and adds a filter to each table. The filter limits the rows to your organization, project, and environment.

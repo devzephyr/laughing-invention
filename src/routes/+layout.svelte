@@ -6,9 +6,13 @@
 
 	let { children } = $props();
 
+	// Posts, the disclosures table and the 404 use the wider column; the nav and footer match them
+	const wide = $derived(page.url.pathname.startsWith('/blog/') || page.url.pathname === '/disclosures' || page.status === 404);
+
 	const navItems = [
 		{ href: '/', label: 'Adeyemi Folarin' },
 		{ href: '/blog', label: 'Blog' },
+		{ href: '/disclosures', label: 'Disclosures' },
 		{ href: '/resume', label: 'Resume' }
 	];
 
@@ -31,7 +35,7 @@
 
 <div class="app">
 	<!-- Post pages are wider; the nav matches so their left edges line up -->
-	<nav class="site-nav content-container" class:wide={page.url.pathname.startsWith("/blog/") || page.status === 404} aria-label="Site">
+	<nav class="site-nav content-container" class:wide={wide} aria-label="Site">
 		{#each navItems as item}
 			<a
 				href={item.href}
@@ -44,7 +48,7 @@
 	<main id="main-content">
 		{@render children()}
 	</main>
-	<footer class="site-footer content-container" class:wide={page.url.pathname.startsWith("/blog/") || page.status === 404}>
+	<footer class="site-footer content-container" class:wide={wide}>
 		<a href="/feed.xml" class="mono">Feed</a>
 		<a href="/privacy" class="mono">Privacy</a>
 		<a href="/security" class="mono">Security policy</a>

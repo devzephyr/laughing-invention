@@ -3,6 +3,19 @@ title: "One Email Leaks the DB Password, One GET Takes the ERP Down"
 description: "Two FacturaScripts advisories, same product, same day. A path traversal in the mail attachment handler emails config.php to an attacker (CVSS 9.9). A Deploy endpoint signed with md5 of the database password lets anyone disable every plugin (CVSS 7.5). The first bug hands you the key to the second."
 date: "2026-10-05"
 tags: ["facturascripts", "path-traversal", "erp", "cwe-22", "cwe-330", "web-security"]
+advisories:
+  - id: "GHSA-grw9-xvv2-5623"
+    product: "FacturaScripts"
+    kind: "Path traversal (CWE-22)"
+    affected: "< 2026.7"
+    fixed: "2026.7"
+    severity: "9.9"
+  - id: "GHSA-jrgg-j699-qm3h"
+    product: "FacturaScripts"
+    kind: "Predictable Deploy token (CWE-330)"
+    affected: "< 2026.7"
+    fixed: "2026.7"
+    severity: "7.5"
 ---
 
 I reported two bugs in FacturaScripts, the open-source PHP accounting and ERP platform. Both got fixed on 2026-10-05. Each one is bad alone. Together they are worse, because the first bug hands you the exact secret the second bug needs.

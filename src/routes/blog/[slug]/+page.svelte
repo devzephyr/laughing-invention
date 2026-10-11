@@ -4,6 +4,9 @@
 	import { onMount, tick } from 'svelte';
 	import type { PageData } from './$types';
 
+	// A bare number is a CVSS score; anything else is a rating as the vendor published it
+	const severityLabel = (severity: string) => (/^[0-9.]+$/.test(severity) ? `CVSS ${severity}` : severity);
+
 	let { data }: { data: PageData } = $props();
 	let lightbox: HTMLDialogElement;
 	let lightboxSrc = $state('');
@@ -134,6 +137,20 @@
 					{/each}
 				</div>
 			{/if}
+			{#if data.metadata.advisories?.length}
+				<section class="advisories" aria-label="Advisories in this post">
+					{#each data.metadata.advisories as advisory, i (i)}
+						<dl class="advisory mono">
+							<div><dt>Advisory</dt><dd>{[advisory.id, advisory.cve].filter(Boolean).join(' · ') || 'No advisory ID'}</dd></div>
+							<div><dt>Product</dt><dd>{advisory.product}</dd></div>
+							<div><dt>Class</dt><dd>{advisory.kind}</dd></div>
+							{#if advisory.affected}<div><dt>Affected</dt><dd>{advisory.affected}</dd></div>{/if}
+							{#if advisory.fixed}<div><dt>Fixed in</dt><dd>{advisory.fixed}</dd></div>{/if}
+							{#if advisory.severity}<div><dt>Severity</dt><dd>{severityLabel(advisory.severity)}</dd></div>{/if}
+						</dl>
+					{/each}
+				</section>
+			{/if}
 		</header>
 
 		<div class="post-content mono primary">
@@ -177,6 +194,34 @@
 
 	.back-link:active {
 		color: var(--color-natural);
+	}
+
+	.advisories {
+		display: grid;
+		gap: var(--spacing-3);
+		margin-top: var(--spacing-6);
+	}
+
+	.advisory {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+		gap: var(--spacing-3) var(--spacing-6);
+		padding: var(--spacing-4);
+		border: var(--border-base) solid var(--color-slate-150);
+		border-radius: var(--radius-md);
+		font-size: var(--text-sm);
+	}
+
+	.advisory dt {
+		color: var(--color-slate-400);
+		font-size: var(--text-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.advisory dd {
+		color: var(--color-slate-900);
+		overflow-wrap: anywhere;
 	}
 
 	.post-header time {

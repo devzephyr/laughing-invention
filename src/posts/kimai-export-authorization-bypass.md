@@ -3,6 +3,14 @@ title: "Kimai Guarded the Report and Forgot the Export"
 description: "Kimai locked its project report behind a permission check and left the export route beside it open. Any logged-in user could download customer names, project names, and budget metadata across every customer. Advisory GHSA-pvc4-crg3-gj44, CVE-2026-80194, patched in 2.64.0."
 date: "2026-08-17"
 tags: ["kimai", "access-control", "broken-authorization", "symfony", "cwe-862", "web-security"]
+advisories:
+  - id: "GHSA-pvc4-crg3-gj44"
+    cve: "CVE-2026-80194"
+    product: "Kimai"
+    kind: "Missing authorization"
+    affected: "< 2.64.0"
+    fixed: "2.64.0"
+    severity: "Low (vendor)"
 ---
 
 I found a missing authorization check in Kimai, the open-source time tracker. The project overview report returns a 403 to a user without reporting permission. The export route beside it returns the data. Any authenticated account, down to a plain ROLE_USER on stock permissions, could request that route and download a spreadsheet the report itself would refuse to show.

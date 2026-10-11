@@ -3,6 +3,12 @@ title: "The DNS check that passed and the connection that didn't care"
 description: "mcp-from-openapi added an SSRF guard to protect internal services and cloud metadata. It resolved the hostname once to validate it, and then called fetch(), which re-resolved it at connection time. How a classic DNS TOCTOU slips into modern async JavaScript, why blocklist hardening can't fix it, and what it actually takes to pin a socket."
 date: "2026-09-26"
 tags: ["security", "ssrf", "dns-rebinding", "mcp", "nodejs", "vulnerability"]
+advisories:
+  - id: "GHSA-rm2m-wfw5-7wp5"
+    product: "mcp-from-openapi"
+    kind: "SSRF via DNS rebinding"
+    affected: "<= 2.5.0"
+    fixed: "2.5.1"
 ---
 
 I've been spending some time looking at the Model Context Protocol (MCP) ecosystem lately. It's an exciting space because it's giving LLMs arms and legs: instead of just generating text, an agent can read an OpenAPI schema, generate client tools dynamically, and start talking to APIs.

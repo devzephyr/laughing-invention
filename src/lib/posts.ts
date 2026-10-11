@@ -1,9 +1,22 @@
+/** One advisory the author reported, from a post's frontmatter. Every value is quoted from the post. */
+export interface Advisory {
+	id?: string;
+	cve?: string;
+	product: string;
+	kind: string;
+	affected?: string;
+	fixed?: string;
+	/** CVSS score as published, or the vendor's rating when no score was given */
+	severity?: string;
+}
+
 export interface PostMeta {
 	slug: string;
 	title: string;
 	description: string;
 	date: string;
 	tags: string[];
+	advisories?: Advisory[];
 }
 
 // Frontmatter only: the post bodies stay out of whatever imports this

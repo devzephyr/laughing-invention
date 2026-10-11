@@ -3,6 +3,13 @@ title: "A Where Is Not a Yes: Payload Alt Text Health Report Leaked Every Tenant
 description: "The alt text health report in @jhb.software/payload-alt-text-plugin scanned every tenant with overrideAccess: true and flattened Where-based read rules to a yes, handing any logged-in user counts and up to 100 document IDs from rows they cannot read. GHSA-3pmw-vxv3-8vgq, CVSS 4.3, fixed in 0.13.0."
 date: "2026-09-23"
 tags: ["payload-cms", "access-control", "multi-tenant", "cwe-863", "security-research"]
+advisories:
+  - id: "GHSA-3pmw-vxv3-8vgq"
+    product: "@jhb.software/payload-alt-text-plugin"
+    kind: "Authorization bypass (CWE-863)"
+    affected: ">= 0.4.0, < 0.13.0"
+    fixed: "0.13.0"
+    severity: "4.3"
 ---
 
 Any authenticated user could ask the alt text health report how many images sit in every tenant's media library, how many are missing alt text, and receive up to 100 document IDs as proof. The report's own gate said yes. The user's read rule, the one that exists precisely to keep tenants apart, said "only my rows." The plugin flattened that rule into a boolean and read everything.

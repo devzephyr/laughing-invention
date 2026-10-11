@@ -3,6 +3,12 @@ title: "One Boolean and You Vanish: A Mass Assignment Fix in Kimai"
 description: "A ROLE_TEAMLEAD user in Kimai 2.56.0 could set systemAccount:true on their own profile through the user API and disappear from every billing report, every user dropdown, and every teammate's view. One missing permission check. Patched in 2.57.0, credit in the release notes."
 date: "2026-07-07"
 tags: ["kimai", "mass-assignment", "cwe-915", "access-control", "responsible-disclosure", "web-security"]
+advisories:
+  - product: "Kimai"
+    kind: "Mass assignment (CWE-915)"
+    affected: "2.56.0"
+    fixed: "2.57.0"
+    severity: "4.3"
 ---
 
 Kimai is an open-source time-tracking app that companies use to log hours, bill customers, and run payroll reports. In version 2.56.0, a user with the `ROLE_TEAMLEAD` role could send one API request, flip a single boolean on their own account, and vanish from every management report in the system. Their timesheets stayed in the database. Their name stopped showing up anywhere a manager would look.

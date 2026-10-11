@@ -3,6 +3,19 @@ title: "Argos CLI Debug Mode Prints Your CI Tokens, and the Docs Tell You to Ena
 description: "Two advisories I filed against argos-javascript: the documented debug flag dumps GITHUB_TOKEN and ARGOS_TOKEN into CI logs, and the OAuth login echoes attacker-controlled ANSI into your terminal. Both fixed within a day."
 date: "2026-09-13"
 tags: ["argos", "github-actions", "ci-cd", "secrets", "security-research"]
+advisories:
+  - id: "GHSA-28pg-v3hp-9g7f"
+    product: "@argos-ci/core"
+    kind: "Tokens in debug logs (CWE-532)"
+    affected: "<= 6.8.4"
+    fixed: "6.8.5"
+    severity: "6.8"
+  - id: "GHSA-q9j4-4h4j-mv5m"
+    product: "@argos-ci/cli"
+    kind: "ANSI injection (CWE-117)"
+    affected: "< 6.9.4"
+    fixed: "6.9.4"
+    severity: "1.7"
 ---
 
 Run the one troubleshooting command Argos documents for its CLI, `DEBUG=@argos-ci/core argos upload ./screenshots`, and the output contains your `GITHUB_TOKEN`, the OIDC request token, and your `ARGOS_TOKEN`. Not masked, not truncated. In CI, that lands in the build log. On a public repo, that log is readable by anyone with a browser.
