@@ -36,7 +36,7 @@
 	}
 
 	.eyebrow {
-		font-size: var(--text-sm);
+		font-size: var(--text-lg);
 		font-weight: var(--font-regular);
 	}
 
