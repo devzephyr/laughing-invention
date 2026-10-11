@@ -1,14 +1,12 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import { emailLink } from '$lib/email';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head>
-	<title>Cybersecurity Blog - Security Research & Vulnerability Analysis</title>
-	<meta name="description" content="Cybersecurity research, exploit analysis, proof of concepts, and code reviews." />
-</svelte:head>
+<Seo title="Adeyemi Folarin · Security Research" description="Vulnerability disclosures, exploit analysis, proof of concepts and CTF writeups, with interactive figures." />
 
 <div class="content-container">
 	<!-- Header -->

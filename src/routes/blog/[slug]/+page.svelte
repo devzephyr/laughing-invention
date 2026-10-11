@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
+	import { page } from '$app/state';
 	import { onMount, tick } from 'svelte';
 	import type { PageData } from './$types';
 
@@ -109,10 +111,14 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{data.metadata.title} - Security Research</title>
-	<meta name="description" content={data.metadata.description} />
-</svelte:head>
+<Seo
+	title={data.metadata.title}
+	description={data.metadata.description}
+	type="article"
+	image="/og/{page.params.slug}.png"
+	published={data.metadata.date}
+	tags={data.metadata.tags}
+/>
 
 <div class="content-container wide">
 	<article class="blog-post">

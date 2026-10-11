@@ -1,13 +1,11 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 </script>
 
-<svelte:head>
-	<title>Blog - Security Research</title>
-	<meta name="description" content="Latest cybersecurity research, vulnerability analysis, and exploits." />
-</svelte:head>
+<Seo title="Blog · Adeyemi Folarin" description="Every post: vulnerability disclosures, exploit analysis and CTF writeups." />
 
 <div class="content-container">
 	<header>

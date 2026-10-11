@@ -1,11 +1,9 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import { emailLink } from '$lib/email';
 </script>
 
-<svelte:head>
-	<title>Resume - Adeyemi Folarin</title>
-	<meta name="description" content="Cybersecurity student specializing in SIEM-based threat detection, digital forensics, and security assessment. Available Fall 2026 for co-op." />
-</svelte:head>
+<Seo title="Resume · Adeyemi Folarin" description="Cybersecurity student specializing in SIEM-based threat detection, digital forensics, and security assessment. Available Fall 2026 for co-op." />
 
 <div class="content-container">
 	<div class="resume">

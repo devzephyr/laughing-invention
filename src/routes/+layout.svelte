@@ -67,6 +67,8 @@
 		{@render children()}
 	</main>
 	<footer class="site-footer content-container" class:wide={page.url.pathname.startsWith("/blog/") || page.status === 404}>
+		<a href="/feed.xml" class="mono">Feed</a>
+		<a href="/privacy" class="mono">Privacy</a>
 		<a href="/security" class="mono">Security policy</a>
 	</footer>
 </div>

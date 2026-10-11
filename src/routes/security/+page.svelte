@@ -1,14 +1,9 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import { emailLink } from '$lib/email';
 </script>
 
-<svelte:head>
-	<title>Security Policy - Adeyemi Folarin</title>
-	<meta
-		name="description"
-		content="How to report a vulnerability in this site, and how I disclose the vulnerabilities I find."
-	/>
-</svelte:head>
+<Seo title="Security policy · Adeyemi Folarin" description="How to report a vulnerability in this site, and how I disclose the vulnerabilities I find." />
 
 <div class="content-container">
 	<article class="policy">
