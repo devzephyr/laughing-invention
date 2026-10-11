@@ -59,6 +59,8 @@ async function userCanReadCollection(req, slug) {
 
 `!== false` collapses Payload's `true | false | Where` union onto a boolean. A `Where` is truthy and not `false`, so the tenant-scoped rule came back as "yes, this user can read the collection." The constraint itself went nowhere. It was never attached to any query.
 
+<iframe class="figure-frame" src="/figures/payload-alt-text-health-row-level-bypass.html" title="Interactive figure: the Where card is discarded and the scanner counts every tenant" loading="lazy"></iframe>
+
 **The scan.** Where did the numbers come from? A single shared scan, computed with the override switch on:
 
 ```ts

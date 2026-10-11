@@ -15,6 +15,8 @@ And before you say "skill issue, user error, should have verified" - no. This is
 
 ## How It Happened (Spoiler: It Was Easy)
 
+<iframe class="figure-frame" src="/figures/address-poisoning-50m-usdt-loss.html" title="Interactive figure: two addresses that look identical through a wallet's truncation" loading="lazy"></iframe>
+
 Here's the timeline of how this victim got absolutely demolished:
 
 **Step 1: The Setup**

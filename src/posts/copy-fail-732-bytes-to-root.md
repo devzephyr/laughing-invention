@@ -52,6 +52,8 @@ The attacker controls three things:
 
 That's a controlled, deterministic page-cache write primitive. No races. No retries. No guessing.
 
+<iframe class="figure-frame" src="/figures/copy-fail-732-bytes-to-root.html" title="Interactive figure: an in-place scratch write lands on the cached page of su" loading="lazy"></iframe>
+
 ## The Exploit Chain
 
 The default PoC targets `/usr/bin/su`, a setuid-root binary present on every tested distro.
