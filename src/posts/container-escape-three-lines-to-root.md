@@ -13,9 +13,6 @@ ENV LD_PRELOAD=/proc/self/cwd/poc.so
 ADD poc.so /
 ```
 
-![The Three-Line Container Escape](/screenshots/02-three-lines-to-root-dockerfile.png)
-*The complete attack: three lines in a Dockerfile that exploit LD_PRELOAD to gain root on the host*
-
 That's it. Three lines. Run this on any system with NVIDIA Container Toolkit installed, and you've got root access on the host. Not the container. The actual host machine. Full system compromise. Game over.
 
 CVE-2025-23266, dubbed "NVIDIAScape" by Wiz Research, affects 37% of cloud environments that use GPU workloads. If you're running machine learning pipelines, AI inference, or anything that touches NVIDIA GPUs in containers, you're probably vulnerable. And the exploit is so simple it fits in a tweet.
@@ -642,10 +639,7 @@ Running the exploit in a Docker container shows the real attack:
 docker run --rm container-escape-poc
 ```
 
-![Docker Container Root Execution](/screenshots/06-docker-container-root-execution.png)
-*The POC executing inside the Docker container with UID: 0 (root) - in the real NVIDIAScape attack, this would be root on the host*
-
-Notice the key line: `[POC] Running as UID: 0, GID: 0`. That's root. In a real NVIDIAScape attack, this code would be running as root on the host operating system, not just inside the container. Game over.
+The container prints `[POC] Running as UID: 0, GID: 0`. That's root. In a real NVIDIAScape attack, this code would be running as root on the host operating system, not just inside the container. Game over.
 
 The entire attack surface boils down to three environment variables and one shared library. No kernel exploits. No memory corruption. No complex attack chains. Just LD_PRELOAD doing exactly what it's designed to do - in the wrong context.
 
