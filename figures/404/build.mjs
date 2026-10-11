@@ -4,7 +4,7 @@ import { writeFigure } from "../embed.mjs";
 import { k, S, L, D, lamp, recess, DOCKBAY_CSS } from "../dockbay.mjs";
 
 const WIDTH = 600;
-const HEIGHT = 440;
+const HEIGHT = 700;
 
 // ---- World layout: a cabinet standing on a plinth, its face toward +y ----
 const PLINTH = { x: -50, y: -34, w: 100, d: 68, r: 4 };
@@ -29,7 +29,7 @@ const P = k.fitProjection(
   [...k.boxCorners(PLINTH, -6, 0), ...k.boxCorners(MARQUEE, 0, MARQUEE_TOP + 6), [LEVER.x, LEVER.y, LEVER.z + LEVER.len + 6], [LEVER.x, LEVER.y + LEVER.len, LEVER.z]],
   WIDTH,
   HEIGHT,
-  { pad: 18, azimuth: 52 },
+  { pad: 10, azimuth: 52 },
 );
 const at = (point) => k.iso(point, P);
 const planeOf = (y) => k.sideMatrix([0, y], 0, P, "left");
