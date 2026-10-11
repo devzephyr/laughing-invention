@@ -1,13 +1,29 @@
 <script lang="ts">
 	import '../app.css';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
+	import { onNavigate } from '$app/navigation';
 	import { page } from '$app/state';
 	injectSpeedInsights();
 
+	// Cross-fade between pages where the browser supports it; reduced motion gets a plain swap
+	onNavigate((navigation) => {
+		if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
+
 	let { children } = $props();
 
-	// Posts, the disclosures table and the 404 use the wider column; the nav and footer match them
-	const wide = $derived(page.url.pathname.startsWith('/blog/') || page.url.pathname === '/disclosures' || page.status === 404);
+	// Posts (not tag lists), the disclosures table and the 404 use the wider column; the nav and footer match them
+	const wide = $derived(
+		(page.url.pathname.startsWith('/blog/') && !page.url.pathname.startsWith('/blog/tag/')) ||
+			page.url.pathname === '/disclosures' ||
+			page.status === 404
+	);
 
 	const navItems = [
 		{ href: '/', label: 'Adeyemi Folarin' },

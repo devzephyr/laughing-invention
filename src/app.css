@@ -122,6 +122,51 @@
     color: var(--shiki-dark) !important;
     background-color: var(--shiki-dark-bg) !important;
   }
+
+  /* Marked lines keep their tint over the dark rule above */
+  .shiki .line.highlighted {
+    background-color: #ffffff14 !important;
+  }
+  .shiki .line:is(.highlighted, .diff) span {
+    background-color: transparent !important;
+  }
+  .shiki .line.diff.add {
+    background-color: #2ea04326 !important;
+  }
+  .shiki .line.diff.remove {
+    background-color: #f8514926 !important;
+  }
+}
+
+/* Code notation from @shikijs/transformers (svelte.config.js): ```lang {2,4}, // [!code ++], [!code focus] */
+.shiki .line.highlighted,
+.shiki .line.diff {
+  display: inline-block;
+  min-width: calc(100% + 2 * var(--spacing-4));
+  margin: 0 calc(-1 * var(--spacing-4));
+  padding: 0 var(--spacing-4);
+}
+.shiki .line.highlighted {
+  background-color: #0000000d;
+}
+.shiki .line.diff.add {
+  background-color: #2ea04320;
+}
+.shiki .line.diff.remove {
+  background-color: #f8514920;
+}
+.shiki .line.diff.add::before {
+  content: "+ ";
+}
+.shiki .line.diff.remove::before {
+  content: "- ";
+}
+.shiki.has-focused .line:not(.focused) {
+  opacity: 0.45;
+  transition: opacity var(--transition-base);
+}
+.shiki.has-focused:hover .line:not(.focused) {
+  opacity: 1;
 }
 
 * {
@@ -141,6 +186,18 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Even heading lines; no single orphaned word at the end of a paragraph */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
 }
 
 h1 {

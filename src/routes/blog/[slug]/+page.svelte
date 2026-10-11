@@ -133,7 +133,7 @@
 			{#if data.metadata.tags && data.metadata.tags.length > 0}
 				<div class="tags">
 					{#each data.metadata.tags as tag}
-						<span class="tag mono tertiary">{tag}</span>
+						<a href="/blog/tag/{tag}" class="tag mono tertiary">{tag}</a>
 					{/each}
 				</div>
 			{/if}
@@ -251,6 +251,12 @@
 		padding: var(--spacing-1) var(--spacing-3);
 		border-radius: var(--radius-full);
 		font-size: var(--text-xs);
+	}
+
+	@media (hover: hover) {
+		.tag:hover {
+			color: var(--color-natural);
+		}
 	}
 
 	.post-content {
@@ -377,6 +383,23 @@
 		text-decoration: underline;
 		text-decoration-thickness: 1px;
 		text-underline-offset: 0.2em;
+	}
+
+	/* Headings link to themselves (rehype-autolink-headings) but read as headings, with a # on hover */
+	.post-content :global(:is(h2, h3, h4) > a) {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.post-content :global(:is(h2, h3, h4) > a::after) {
+		content: ' #';
+		color: var(--color-slate-400);
+		opacity: 0;
+		transition: opacity var(--transition-fast);
+	}
+
+	.post-content :global(:is(h2, h3, h4) > a:is(:hover, :focus-visible)::after) {
+		opacity: 1;
 	}
 
 	.post-content :global(a:active) {

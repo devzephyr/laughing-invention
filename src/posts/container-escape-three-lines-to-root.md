@@ -102,7 +102,7 @@ static void breakout(void) {
 }
 ```
 
-![The Malicious Library Source Code](/screenshots/03-malicious-library-source.png)
+![The Malicious Library Source Code](/screenshots/03-malicious-library-source.webp)
 *Complete POC source showing the constructor function that executes when the library loads*
 
 That's it. When `nvidia-ctk` loads this library, your reverse shell connects back with root privileges on the host. From there, you can install SSH keys, steal credentials, or pivot to other systems.
@@ -611,7 +611,7 @@ Building the malicious shared library is trivial:
 gcc -shared -fPIC -o poc.so poc.c
 ```
 
-![POC Compilation and Docker Build](/screenshots/01-setup-and-build.png)
+![POC Compilation and Docker Build](/screenshots/01-setup-and-build.webp)
 *Compiling the malicious library and building the Docker container - entire setup takes under a minute*
 
 ### Direct LD_PRELOAD Exploitation
@@ -623,12 +623,12 @@ LD_PRELOAD=./poc.so /bin/ls
 cat /tmp/CONTAINER_ESCAPE_POC_SUCCESS
 ```
 
-![POC Execution Success](/screenshots/04-poc-execution-success.png)
+![POC Execution Success](/screenshots/04-poc-execution-success.webp)
 *The POC library constructor executes when any binary loads, proving the LD_PRELOAD injection works*
 
 The proof file shows successful execution:
 
-![Proof File Contents](/screenshots/05-proof-file-contents.png)
+![Proof File Contents](/screenshots/05-proof-file-contents.webp)
 *The malicious code executed and created a proof file showing UID, GID, and PID*
 
 ### Container Escape Demonstration

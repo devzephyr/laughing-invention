@@ -99,12 +99,12 @@ I tested Copy Fail on Kali Linux ARM64 running in UTM on Apple Silicon. Kernel `
 
 The detector confirms the vulnerability without touching any system file, then the rootsecdev exploit corrupts the `/etc/passwd` page cache and prompts for `sam`'s own password:
 
-![Detector confirms VULNERABLE on Kali ARM64, then exploit patches /etc/passwd page cache and prompts for password](/screenshots/01-copy-fail-detector-and-exploit.png)
+![Detector confirms VULNERABLE on Kali ARM64, then exploit patches /etc/passwd page cache and prompts for password](/screenshots/01-copy-fail-detector-and-exploit.webp)
 *Detector marks the kernel as VULNERABLE. The exploit then patches sam's UID field from `1000` to `0000` in the page cache. `getpwnam('sam').pw_uid = 0` confirms the corruption is live. After typing sam's own password, the prompt drops to `(root@larp)`.*
 
 Once you're in the root shell, the smoking gun is what `id` reports:
 
-![Inside root shell: uname -r shows 6.18.12+kali-arm64, uname -m shows aarch64, id shows uid=0(root) gid=1000(sam) with sam's supplementary groups](/screenshots/02-copy-fail-root-shell-proof.png)
+![Inside root shell: uname -r shows 6.18.12+kali-arm64, uname -m shows aarch64, id shows uid=0(root) gid=1000(sam) with sam's supplementary groups](/screenshots/02-copy-fail-root-shell-proof.webp)
 *`uid=0(root)` but `gid=1000(sam)` -- and every supplementary group still belongs to sam (`sudo`, `wireshark`, `kaboxer`, etc.). A real `su` would have switched the primary group and dropped sam's supplementary groups. This mismatch is the runtime fingerprint of page-cache UID corruption.*
 
 The script runs in under a second. No output, no errors, no drama. Just a root shell with sam's group identity stapled to root's UID.
@@ -133,7 +133,7 @@ Two operational wins over Theori's: it ships a non-destructive detector (`test_c
 
 Same `/usr/bin/su` injection approach as Theori but ships native shellcode for both x86-64 and AArch64, picking the right one at runtime. No Python dependency on target. This is the variant that's most useful in a real post-exploitation scenario where you've got a shell as `www-data` and don't want to ship an interpreter. On the same Kali ARM64 VM:
 
-![Go variant rooting Kali ARM64: writes 172 bytes into /usr/bin/su page cache, executes payload, drops directly to a root shell. id shows uid=0(root) gid=1000(sam) groups=1000(sam) -- the same mixed-identity fingerprint the Python /etc/passwd variant produces](/screenshots/04-copy-fail-go-variant-rooted.png)
+![Go variant rooting Kali ARM64: writes 172 bytes into /usr/bin/su page cache, executes payload, drops directly to a root shell. id shows uid=0(root) gid=1000(sam) groups=1000(sam) -- the same mixed-identity fingerprint the Python /etc/passwd variant produces](/screenshots/04-copy-fail-go-variant-rooted.webp)
 *Statically-linked ARM64 binary. 172 bytes total written into `/usr/bin/su`'s page cache across three progress reports (cumulative byte counts shown), then `execve("/usr/bin/su")` runs the injected shellcode and drops a root shell. No Python interpreter needed on target. The id output -- `uid=0(root) gid=1000(sam) groups=1000(sam),4(adm),20(dialout)...` -- shows the same mixed-identity fingerprint that the rootsecdev `/etc/passwd` variant produces, even though this PoC corrupts a completely different file with completely different bytes.*
 
 That mixed-UID-with-original-supplementary-groups state is now confirmed across two independent PoCs targeting two different files. It's a class-level fingerprint, not a one-PoC quirk. We come back to that in the Detection section.
@@ -217,7 +217,7 @@ If you're running YARA scans on hosts, CI artifacts, or container images, pull t
 
 I tested the rule against three of the four publicly available PoC variants:
 
-![YARA scan: matches on Theori's original PoC, silent on rootsecdev's reimplementation, matches on Bad Sector Labs' Go port](/screenshots/03-copy-fail-yara-detection-matrix.png)
+![YARA scan: matches on Theori's original PoC, silent on rootsecdev's reimplementation, matches on Bad Sector Labs' Go port](/screenshots/03-copy-fail-yara-detection-matrix.webp)
 *Three commands. Theori's PoC fetched from copy.fail matches `EXPL_LNX_Copy_Fail_Artefacts_CVE_2026_31431_Apr26`. The rootsecdev clone returns silence. The Bad Sector Labs Go port matches on `main.go`.*
 
 **theori-io/copy-fail-CVE-2026-31431 -- match.** `$x2` hits on `g.open("/usr/bin/su",0);i=0;`. Original target of the rule.

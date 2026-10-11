@@ -35,12 +35,12 @@ The attack chain is frighteningly simple once you have supply chain access:
 
 On December 8, 2025, the attackers registered the domain `metrics-trustwallet[.]com` through NICENIC INTERNATIONAL. Notice the similarity to Trust Wallet's legitimate domains? That's intentional. It's designed to blend in with internal infrastructure and avoid detection during code review.
 
-![Attacker's Domain Landing Page](/screenshots/trust-wallet-1.png)
+![Attacker's Domain Landing Page](/screenshots/trust-wallet-1.webp)
 *The attacker's malicious domain metrics-trustwallet.com - notice the taunting Dune reference "He who controls the spice controls the universe"*
 
 SlowMist's analysis of the domain shows:
 
-![Domain Registration Records](/screenshots/trust-wallet-slowmist-3.png)
+![Domain Registration Records](/screenshots/trust-wallet-slowmist-3.webp)
 *DNS records for metrics-trustwallet.com showing registration on December 9, 2025 via NICENIC INTERNATIONAL registrar*
 
 - **Domain**: `metrics-trustwallet[.]com`
@@ -49,7 +49,7 @@ SlowMist's analysis of the domain shows:
 - **First exfiltration request**: 2025-12-21 (3 days before public release on Dec 24)
 - **Nameservers**: ns3.my-ndns.com, ns4.my-ndns.com
 
-![Network Traffic Timeline](/screenshots/trust-wallet-slowmist-4.png)
+![Network Traffic Timeline](/screenshots/trust-wallet-slowmist-4.webp)
 *SlowMist's network traffic analysis showing first requests to api.metrics-trustwallet.com on December 21, 2025 - three days before public release*
 
 The domain mimicked Trust Wallet's actual metrics endpoint. If a developer saw traffic to `api.metrics-trustwallet.com` in logs, they'd probably assume it was legitimate internal analytics. Social engineering through domain naming.
@@ -77,7 +77,7 @@ The backdoor was hidden in `4482.js`, disguised as PostHog analytics integration
 
 <iframe class="figure-frame" src="/figures/trust-wallet-supply-chain-christmas-heist.html" title="Interactive figure: one api_host change re-points the existing analytics line" loading="lazy"></iframe>
 
-![Malicious Code in 4482.js](/screenshots/trust-wallet-2.jpg)
+![Malicious Code in 4482.js](/screenshots/trust-wallet-2.webp)
 *The smoking gun - malicious code in Trust Wallet's 4482.js pointing to api.metrics-trustwallet.com for data exfiltration*
 
 SlowMist Security Team ran a diff comparison between the clean version 2.67 and compromised version 2.68. The malicious code was inserted directly into Trust Wallet's analytics initialization logic, disguised as PostHog configuration.
@@ -86,7 +86,7 @@ Here's the exact attack flow from SlowMist's analysis:
 
 **Step 1: Wallet Enumeration**
 
-![Malicious Code - Wallet Enumeration](/screenshots/trust-wallet-slowmist-1.png)
+![Malicious Code - Wallet Enumeration](/screenshots/trust-wallet-slowmist-1.webp)
 *SlowMist's analysis showing the malicious code iterating through wallets, calling GET_SEED_PHRASE with passkeyPassword, then injecting the result into errorMessage field*
 
 The backdoor iterates through every wallet stored in the browser extension's local storage and triggers a `GET_SEED_PHRASE` request for each one.
@@ -138,7 +138,7 @@ The decrypted mnemonic phrase is placed into the `errorMessage` field of what ap
 
 **Step 4: Exfiltration via PostHog**
 
-![Malicious PostHog Configuration](/screenshots/trust-wallet-slowmist-2.png)
+![Malicious PostHog Configuration](/screenshots/trust-wallet-slowmist-2.webp)
 *The malicious PostHog initialization showing C.Ay.init() with api_host redirected to https://api.metrics-trustwallet.com instead of legitimate PostHog servers*
 
 The malicious code uses PostHog's legitimate analytics library (`C.Ay.init()` and `C.Ay.register()`) to send the data. But instead of sending to PostHog's servers, the `api_host` parameter is redirected to the attacker's domain:
@@ -157,18 +157,18 @@ this.started || (C.Ay.init("phc_b7MQeJq50hCBJDKHWLA2c1ubYhbY5L97ZsZ66RGwq60", {
 
 **Step 5: Traffic Exfiltration**
 
-![Chrome DevTools - Error Array with Seed Phrases](/screenshots/trust-wallet-slowmist-5.png)
+![Chrome DevTools - Error Array with Seed Phrases](/screenshots/trust-wallet-slowmist-5.webp)
 *Dynamic analysis in Chrome DevTools showing the error array populated with wallet IDs and errorMessage fields during wallet unlock event*
 
-![Chrome DevTools - GET_SEED_PHRASE Call](/screenshots/trust-wallet-slowmist-6.png)
+![Chrome DevTools - GET_SEED_PHRASE Call](/screenshots/trust-wallet-slowmist-6.webp)
 *Full malicious code block showing GET_SEED_PHRASE being called with passkeyPassword, then seed phrase injected into errorMessage for exfiltration*
 
-![Internal Seed Phrase Function](/screenshots/trust-wallet-slowmist-7.png)
+![Internal Seed Phrase Function](/screenshots/trust-wallet-slowmist-7.webp)
 *Chrome DevTools showing the internal INTERNAL_GetSeedPhrase_OMnr function being called to decrypt wallet mnemonic phrases*
 
 SlowMist captured the exfiltration traffic using BurpSuite. The request shows the mnemonic phrase being sent in the `error` field to the attacker's server:
 
-![BurpSuite Traffic Capture](/screenshots/trust-wallet-slowmist-8.png)
+![BurpSuite Traffic Capture](/screenshots/trust-wallet-slowmist-8.webp)
 *BurpSuite capture showing the actual exfiltration POST request with seed phrase hidden in error field, sent to https://trustwallet.es (attacker's server)*
 
 The HTTP request structure:
@@ -243,14 +243,14 @@ The speed of exploitation is telling. Attackers didn't wait to collect seed phra
 
 Some victims reported funds disappearing within seconds of unlocking their wallet. That's the power of supply chain attacks - you don't need to convince users to click anything or approve any transaction. You already have their keys.
 
-![Attacker's Wallet Portfolio](/screenshots/trust-wallet-3.jpg)
+![Attacker's Wallet Portfolio](/screenshots/trust-wallet-3.webp)
 *Attacker's wallet showing $2.3M in stolen cryptocurrency across multiple chains - BTC, ETH, BNB, stablecoins*
 
 ### The Laundering Operation
 
 Once the attackers had the funds, they moved fast:
 
-![Fund Laundering Flow](/screenshots/trust-wallet-4.jpg)
+![Fund Laundering Flow](/screenshots/trust-wallet-4.webp)
 *Money laundering trail tracked by @lookonchain - $6.77M stolen from users, $3.17M laundered through ChangeNOW exchange, with additional flows to KuCoin, FixedFloat, and HTX*
 
 The visualization above shows the attacker's laundering strategy:

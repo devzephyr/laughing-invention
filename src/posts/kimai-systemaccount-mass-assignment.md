@@ -71,7 +71,7 @@ The server returns `HTTP 200` and the response body shows `"systemAccount": true
 
 I confirmed all four steps through separate Caido replay sessions. Baseline, exploit, independent persistence check, revert. The write was real, durable, and reversible.
 
-![Caido replay showing a PATCH to /api/users/4 accepted with HTTP 200 and systemAccount set to true in the response body](/screenshots/kimai-systemaccount-exploit.png)
+![Caido replay showing a PATCH to /api/users/4 accepted with HTTP 200 and systemAccount set to true in the response body](/screenshots/kimai-systemaccount-exploit.webp)
 *The exploit in Caido. A `ROLE_TEAMLEAD` token sends `{"systemAccount":true}` to `/api/users/4`, and the response comes back `HTTP 200` with `"systemAccount": true`. No admin in the loop.*
 
 ## What You Get
@@ -110,7 +110,7 @@ Kevin Papst shipped the fix in [Kimai 2.57.0 as part of PR #5929](https://github
 
 > Prevent regular users from turning their account into a systemAccount (thanks Abdul-Ramon).
 
-![Kimai 2.57.0 release notes on GitHub listing Abdul-Ramon among the contributors involved in the release](/screenshots/kimai-systemaccount-credit.png)
+![Kimai 2.57.0 release notes on GitHub listing Abdul-Ramon among the contributors involved in the release](/screenshots/kimai-systemaccount-credit.webp)
 *The 2.57.0 release page. The credit line lists me next to the core maintainers.*
 
 The 2.57.0 release notes list me alongside the core team in the "involved in this release" line. Reported, fixed fast, credited. That is the responsible disclosure loop closing the way it should.

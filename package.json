@@ -10,11 +10,14 @@
 		"og": "bun figures/og.mjs"
 	},
 	"devDependencies": {
+		"@shikijs/transformers": "^4",
 		"@sveltejs/adapter-vercel": "^6.3.4",
 		"@sveltejs/kit": "^2.70.3",
 		"@sveltejs/vite-plugin-svelte": "^7.3.1",
 		"mdsvex": "^0.12.8",
-		"shiki": "^1.0.0",
+		"rehype-autolink-headings": "^7",
+		"rehype-slug": "^6",
+		"shiki": "^4",
 		"svelte": "^5.57.2",
 		"vite": "^8.3.4"
 	},

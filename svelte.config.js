@@ -2,6 +2,14 @@ import adapter from "@sveltejs/adapter-vercel";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { mdsvex } from "mdsvex";
 import { createHighlighter } from "shiki";
+import {
+  transformerMetaHighlight,
+  transformerNotationDiff,
+  transformerNotationFocus,
+  transformerNotationHighlight,
+} from "@shikijs/transformers";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 // Create syntax highlighter with common languages for security research
 const highlighter = await createHighlighter({
@@ -44,14 +52,24 @@ const config = {
     vitePreprocess(),
     mdsvex({
       extensions: [".md"],
+      // Every heading gets an id and becomes a link to itself, so any section can be shared
+      rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: "wrap" }]],
       highlight: {
-        highlighter: async (code, lang) => {
+        highlighter: async (code, lang, meta) => {
           let html;
           try {
             html = highlighter.codeToHtml(code, {
               lang: lang || "text",
               // Light colors inline; dark ones as --shiki-dark vars, swapped in app.css
               themes: { light: "github-light", dark: "github-dark" },
+              // ```ts {2,4-5} highlights lines; // [!code ++], [!code --], [!code highlight], [!code focus] in the code
+              meta: { __raw: meta ?? "" },
+              transformers: [
+                transformerMetaHighlight(),
+                transformerNotationHighlight(),
+                transformerNotationDiff(),
+                transformerNotationFocus(),
+              ],
             });
           } catch (e) {
             // Unknown language: plain block, escaped so <, & and { in the code stay text

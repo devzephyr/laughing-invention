@@ -1,8 +1,20 @@
 <script lang="ts">
 	import Seo from '$lib/Seo.svelte';
-	import type { PageData } from './$types';
+	import PostList from '$lib/PostList.svelte';
+	import { allPosts } from '$lib/posts';
 
-	let { data }: { data: PageData } = $props();
+	const posts = allPosts();
+	let query = $state('');
+
+	// Every word typed has to appear somewhere in the title, description or tags
+	const shown = $derived.by(() => {
+		const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+		if (!words.length) return posts;
+		return posts.filter((post) => {
+			const text = [post.title, post.description, ...post.tags].join(' ').toLowerCase();
+			return words.every((word) => text.includes(word));
+		});
+	});
 </script>
 
 <Seo title="Blog · Adeyemi Folarin" description="Every post: vulnerability disclosures, exploit analysis and CTF writeups." />
@@ -11,110 +23,59 @@
 	<header>
 		<h1 class="mono primary">Research Blog</h1>
 		<p class="mono secondary">Vulnerability analysis, proof of concepts, and code reviews</p>
+		<input
+			class="filter mono"
+			type="search"
+			bind:value={query}
+			aria-label="Filter posts"
+			placeholder="Filter posts"
+			autocomplete="off"
+			spellcheck="false"
+		/>
+		<p class="mono tertiary count" aria-live="polite">
+			{query.trim() ? `${shown.length} of ${posts.length} posts` : ''}
+		</p>
 	</header>
 
 	<div class="section">
-		<div class="posts-list">
-			{#each data.posts as post}
-				<article class="post-card">
-					<time class="mono tertiary">{post.date}</time>
-					<h2 class="mono primary">
-						<a href="/blog/{post.slug}">{post.title}</a>
-					</h2>
-					<p class="mono secondary">{post.description}</p>
-					{#if post.tags && post.tags.length > 0}
-						<div class="tags">
-							{#each post.tags as tag}
-								<span class="tag mono tertiary">{tag}</span>
-							{/each}
-						</div>
-					{/if}
-				</article>
-			{/each}
-		</div>
+		{#if shown.length}
+			<PostList posts={shown} />
+		{:else}
+			<p class="mono secondary">No posts match "{query.trim()}".</p>
+		{/if}
 	</div>
 </div>
 
 <style>
 	header {
-		padding: var(--spacing-16) var(--spacing-4) var(--spacing-8);
+		padding: var(--spacing-16) var(--spacing-4) var(--spacing-4);
 	}
 
 	header h1 {
 		margin-bottom: var(--spacing-2);
 	}
 
-	.posts-list {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-8);
-	}
-
-	/* The title link stretches over the whole card, so the card is the link */
-	.post-card {
-		position: relative;
+	.filter {
+		display: block;
+		margin-top: var(--spacing-8);
+		width: 100%;
+		font: inherit;
+		font-size: var(--text-sm);
+		color: var(--color-black-100);
+		background-color: transparent;
 		border: var(--border-base) solid var(--color-slate-150);
 		border-radius: var(--radius-md);
-		padding: var(--spacing-6);
-		transition:
-			border-color var(--transition-base),
-			transform var(--transition-press);
+		padding: var(--spacing-2) var(--spacing-3);
 	}
 
-	.post-card h2 a::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-	}
-
-	.post-card:active {
-		border-color: var(--color-natural);
-		transform: scale(0.98);
-	}
-
-	.post-card:has(a:focus-visible) {
+	.filter:focus-visible {
 		outline: 2px solid var(--lavender-500);
 		outline-offset: 2px;
 	}
 
-	.post-card h2 a:focus-visible {
-		outline: none;
-	}
-
-	@media (hover: hover) {
-		.post-card:hover {
-			border-color: var(--color-natural);
-		}
-
-		.post-card:hover h2 a {
-			color: var(--color-natural);
-		}
-	}
-
-	.post-card time {
-		display: block;
-		margin-bottom: var(--spacing-2);
-		font-size: var(--text-sm);
-	}
-
-	.post-card h2 {
-		margin-bottom: var(--spacing-3);
-	}
-
-	.post-card p {
-		margin-bottom: var(--spacing-4);
-	}
-
-	.tags {
-		display: flex;
-		gap: var(--spacing-2);
-		flex-wrap: wrap;
-	}
-
-	.tag {
-		background-color: var(--color-slate-100);
-		padding: var(--spacing-1) var(--spacing-3);
-		border-radius: var(--radius-full);
+	.count {
+		min-height: 1.5em;
+		margin-top: var(--spacing-2);
 		font-size: var(--text-xs);
 	}
 </style>
