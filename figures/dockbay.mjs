@@ -127,3 +127,49 @@ export const DOCKBAY_CSS = `
 .db-well{fill:var(--db-well);stroke:none}
 .db-lamp-on .iso-top,.db-lamp-on .iso-shade,.db-lamp-on .iso-fill{fill:var(--anatomy-hi)}
 `;
+
+// ---- Rail and cart: a request travelling between stations ----
+export const CART_Z = 3;
+export const CART_TOP = 9;
+
+/** Two rails along x centred on `y`, end stops, and a ruler strip on the near side. */
+export function railSvg(from, to, y) {
+  const out = [];
+  for (const ry of [y - 9, y + 5]) {
+    out.push(S(k.slabOf({ x: from, y: ry, w: to - from, d: 4, r: 1 }, 0, CART_Z, P, 3, 0.4), { tone: "mid" }));
+    out.push(D([from + 5, (from + to) / 2, to - 5].map((x) => at([x, ry + 2, CART_Z])), { size: 0.4 }));
+  }
+  for (const x of [from - 5, to]) {
+    out.push(S(k.slabOf({ x, y: y - 12, w: 5, d: 24, r: 1.2 }, 0, 7, P, 3, 0.5), { tone: "mid" }));
+    out.push(D([at([x + 2.5, y - 8, 7]), at([x + 2.5, y + 8, 7])], { size: 0.45 }));
+  }
+  const strip = { x: from, y: y + 13, w: to - from, d: 5, r: 1 };
+  out.push(S(k.slabOf(strip, 0, 0.6, P, 3), { tone: "lo", crease: "none" }));
+  const ticks = k.topTicks(strip.x + 3, strip.x + strip.w - 3, 4, 5, strip.y + 0.6, 0.6, [1.6, 3], P);
+  out.push(L(ticks.minor, { tone: "lo" }), L(ticks.major, { tone: "mid" }));
+  return out.join("");
+}
+
+/** A cart built at x = 0 on a rail centred on `y`; move it with translateAlong. `top` is drawn on its deck. */
+export function cartSvg(y, top = "") {
+  const plan = { x: -15, y: y - 15, w: 30, d: 30, r: 3 };
+  const out = [`<path class="iso-halo" d="${k.haloOf(k.insetPlan(plan, 3), CART_Z, 0.1, P)}" style="filter:blur(4px)"/>`];
+  out.push(S(k.slabOf(plan, CART_Z, CART_TOP - CART_Z, P, 5, 0.6), { tone: "mid", inner: L(k.sideSeam(plan, CART_Z + 2.4, P, 5), { tone: "faint" }) }));
+  for (const [x, cy] of k.corners(plan, 4.5)) out.push(L(k.ring(x, cy, 1.8, CART_TOP, P, 14), { tone: "lo" }));
+  out.push(D(k.corners(plan, 4.5).map(([x, cy]) => at([x, cy, CART_TOP])), { size: 0.45 }));
+  out.push(top);
+  out.push(S(k.slabOf({ x: -3, y: plan.y + plan.d - 1, w: 6, d: 3.4, r: 0.8 }, CART_Z + 1.2, 2.4, P, 2), { tone: "mid", crease: "none" }));
+  out.push(S(k.cylinder(0, plan.y + plan.d + 3.4, 2.4, CART_Z + 0.4, 4, P, 18), { tone: "mid" }));
+  out.push(L(k.knurl(0, plan.y + plan.d + 3.4, 2.4, CART_Z + 0.4, CART_Z + 4.4, 14, P), { tone: "lo" }));
+  return out.join("");
+}
+
+/** A crate built around the origin (floor at z = 0): banded sides, lid seam, corner dots. */
+export function crateSvg(w = 14, d = 10, h = 8, tone = "hi", lit = false) {
+  const plan = { x: -w / 2, y: -d / 2, w, d, r: 0.8 };
+  return [
+    S(k.slabOf(plan, 0, h, P, 3, 0.4), { tone, crease: "lo", lit, inner: L(k.sideSeam(plan, h - 1.6, P, 3), { tone: "faint" }) }),
+    L(k.planOutline(k.insetPlan(plan, 1.6), h, P, 3), { tone: "faint" }),
+    D(k.corners(plan, 1.2).map(([x, y]) => at([x, y, h])), { size: 0.35, tone: "lo" }),
+  ].join("");
+}

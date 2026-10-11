@@ -72,6 +72,8 @@ The grammar has the `{placeholder}` syntax, but no code in the repo replaces a p
 
 The route has a second check, `detectQueryTables`, which lists the tables in a query. That function ignored placeholder tables too. So neither check saw the table.
 
+<iframe class="figure-frame" src="/figures/trigger-dev-tsql-placeholder-tenant-bypass.html" title="Interactive figure: a braced table name rides a bypass lane past the tenant seal press" loading="lazy"></iframe>
+
 ## The exploit
 
 **Step 1: Get a credential that the query endpoint accepts.** An environment API key or a public JWT is sufficient. Customers put these low-privilege credentials into their own apps.

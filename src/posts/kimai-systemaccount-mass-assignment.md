@@ -38,6 +38,8 @@ if (!$this->isGranted('password', $profile))    { $options['include_password_res
 
 Roles, active flag, preferences, supervisor, password reset. Five fields, five guards. The developer who wrote this understood the pattern and used it five times. Someone added `systemAccount` to the form later and never gave it the same guard. That is the whole bug. A field that belonged next to `roles` in the guard list never made it onto the list.
 
+<iframe class="figure-frame" src="/figures/kimai-systemaccount-mass-assignment.html" title="Interactive figure: five guarded switches and one bare systemAccount switch" loading="lazy"></iframe>
+
 This is CWE-915, improperly controlled modification of a dynamically-determined object attribute. Mass assignment. The classic version is a web form that lets you POST `is_admin=true`. This is the same failure wearing a Symfony form.
 
 ## How It Works

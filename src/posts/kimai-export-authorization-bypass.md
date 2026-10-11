@@ -52,6 +52,8 @@ final class ProjectViewController extends AbstractController
 
 Two routes, one `getData()`, and both guards on one of them. The HTML action checks permission. The export action assembles the identical dataset and streams it to anyone with a login.
 
+<iframe class="figure-frame" src="/figures/kimai-export-authorization-bypass.html" title="Interactive figure: the report hatch is bolted, the export hatch is not" loading="lazy"></iframe>
+
 Every other reporting controller in Kimai that exposes an export route places its guards at the class level, so the export falls under the same rule as the report. ProjectViewController was the only one guarding the method instead of the class. That is how the export slipped out uncovered.
 
 ## How It Works
