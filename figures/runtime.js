@@ -2,7 +2,7 @@
 // A figure is a pure function of cycle time t and one boolean: the bug (false) or the fix (true).
 // This drives the idle tour (alternating bug and fix), hover scrubbing, arrow-key steps,
 // the fix toggle, the offscreen pause and reduced motion, and writes the readout.
-function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
+function runFigure({ cycle, scrubEnd, steps, draw, phase, label, scrub = true }) {
   const stage = document.querySelector(".iso-stage");
   const svg = stage.querySelector("svg");
   const readout = document.querySelector("[data-readout]");
@@ -98,7 +98,7 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
   });
 
   stage.addEventListener("pointermove", (event) => {
-    if (event.pointerType !== "mouse") return;
+    if (!scrub || event.pointerType !== "mouse") return;
     const box = svg.getBoundingClientRect();
     const share = Math.min(
       1,

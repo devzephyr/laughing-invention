@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tqETY64aX7dvMQF4lgxREDICp5BMfgJ7UHTgUdVScRY=' 'sha256-bnJmMESdgQP7JfIbTj0vrzz2vUOWOm5BU5/TWvyA2Jw='; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Seven digits</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tqETY64aX7dvMQF4lgxREDICp5BMfgJ7UHTgUdVScRY=' 'sha256-PZJlRFAE5jTZ70ts8Atfu2Gv5gqFEx0SI+//ZV1iBWg='; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Seven digits</title><style>
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -114,6 +114,8 @@ body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px
 
 html{color-scheme:light dark}
 html,body{background:transparent}
+/* Sized to its content by the post page; shadows that spill past the edge must not add a scrollbar */
+html,body{overflow:hidden}
 body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px}
 .iso-page{width:100%;margin:0}
 .iso-figure{margin:0}
@@ -810,7 +812,7 @@ const ISO_CSS = `
 // A figure is a pure function of cycle time t and one boolean: the bug (false) or the fix (true).
 // This drives the idle tour (alternating bug and fix), hover scrubbing, arrow-key steps,
 // the fix toggle, the offscreen pause and reduced motion, and writes the readout.
-function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
+function runFigure({ cycle, scrubEnd, steps, draw, phase, label, scrub = true }) {
   const stage = document.querySelector(".iso-stage");
   const svg = stage.querySelector("svg");
   const readout = document.querySelector("[data-readout]");
@@ -906,7 +908,7 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
   });
 
   stage.addEventListener("pointermove", (event) => {
-    if (event.pointerType !== "mouse") return;
+    if (!scrub || event.pointerType !== "mouse") return;
     const box = svg.getBoundingClientRect();
     const share = Math.min(
       1,
@@ -970,8 +972,7 @@ const P = {"origin":[300,234.2543504834373],"scale":1.3306298193238728,"azimuth"
 const WIN = {"x0":-108,"x1":104,"z0":18,"z1":44,"r":1.6,"depth":3}, FACE_Y = -40, SELECTOR = [112,31], SLIDE = {"from":14,"to":28};
 const DIFFER = 33, MASK_RISE = 26;
 const T = { print: [1.2, 3.0], choose: [3.3, 3.8], unmask: [3.1, 3.9], send: [4.2, 4.9], reset: 9.4, cycle: 11 };
-const selectorD = (down) =>
-  segment([SELECTOR[0], FACE_Y + 1.6, SELECTOR[1]], [SELECTOR[0] - 5.6, FACE_Y + 1.6, SELECTOR[1] + (down ? -2.6 : 2.6)], P);
+const selectorD = (down) => segment([SELECTOR[0], FACE_Y + 1.6, SELECTOR[1]], [SELECTOR[0] - 5.6, FACE_Y + 1.6, SELECTOR[1] + (down ? -2.6 : 2.6)], P);
 
 const svg = document.querySelector(".iso-stage svg");
 const part = (name) => svg.querySelector('[data-part="' + name + '"]');

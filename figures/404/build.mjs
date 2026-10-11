@@ -1,318 +1,238 @@
-// Fig: the 404 page, a railway roundhouse. Around the turntable stands one stall per post on the site.
-// A request rolls in, the turntable lines up with every stall in turn, each stall lamp flashes and its
-// door stays shut, and the crate ends in the lost-and-found bin. "Route me home" swings the turntable
-// back to the entry track and rolls the request out the way it came, then goes to /.
-import { readdirSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+// Fig: the 404 page. A one-armed bandit whose three reels always stop on 4, 0, 4.
+// The lever pulls, the reels spin and stop left to right, and the marquee bulbs flash. No words.
 import { writeFigure } from "../embed.mjs";
-import { k, P, WIDTH, HEIGHT, at, S, L, D, deck, lamp, recess, crateSvg, CART_TOP, DOCKBAY_CSS } from "../dockbay.mjs";
+import { k, S, L, D, lamp, recess, DOCKBAY_CSS } from "../dockbay.mjs";
 
-// ---- Model: one stall per post that actually exists ----
-const POSTS = readdirSync(join(dirname(fileURLToPath(import.meta.url)), "..", "..", "src", "posts")).filter((f) => f.endsWith(".md")).length;
-const CELLS = 16;
+const WIDTH = 600;
+const HEIGHT = 440;
 
-// ---- World layout: angles in degrees, 0 = +x, 90 = +y (toward the viewer's left) ----
-const C = [34, 2]; // turntable centre
-const PIT_R = 26;
-const DISC_R = 23;
-const DISC_TOP = 3;
-const STALL = { r0: 46, r1: 72, h: 26, door: 18 };
-const ARC = [150, 300]; // the stalls stand round the back of the yard
-const stallAngle = (i) => ARC[0] + ((i + 0.5) * (ARC[1] - ARC[0])) / POSTS;
-const HALF = (ARC[1] - ARC[0]) / POSTS / 2;
-const ENTRY = 62; // the entry track runs toward the front left
-const LOST = 8; // the lost-and-found siding runs to the right
-const dir = (deg) => [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
-const along = (deg, r) => [C[0] + dir(deg)[0] * r, C[1] + dir(deg)[1] * r];
-const RAIL_Z = 2;
-const ENTRY_LEN = 66;
-const LOST_LEN = 50;
-const BIN_C = along(LOST, LOST_LEN + 10);
-const BIN = { x: BIN_C[0] - 11, y: BIN_C[1] - 10, w: 22, d: 20, r: 1.5 };
-const BIN_H = 8;
-const BOARD = { x: -134, y: -20, w: 92, d: 12, r: 2 };
-const BOARD_TOP = 40;
-const FACE_Y = BOARD.y + BOARD.d;
-const WIN = { x0: BOARD.x + 5, x1: BOARD.x + BOARD.w - 5, z0: 13, z1: 35, r: 1.6, depth: 3 };
-const PITCH = 5.05;
-const CELL = { w: 4.5, h: 8.6, font: 6.2 };
-const ROW_Z = [29, 19];
-const cellX = (i) => WIN.x0 + 2.6 + CELL.w / 2 + i * PITCH;
+// ---- World layout: a cabinet standing on a plinth, its face toward +y ----
+const PLINTH = { x: -50, y: -34, w: 100, d: 68, r: 4 };
+const BASE = { x: -36, y: -22, w: 72, d: 40, r: 3 };
+const BASE_TOP = 40;
+const HOUSING = { x: -34, y: -20, w: 68, d: 36, r: 3 };
+const HOUSING_TOP = 84;
+const FACE = HOUSING.y + HOUSING.d;
+const MARQUEE = { x: -38, y: -23, w: 76, d: 42, r: 4 };
+const MARQUEE_TOP = 100;
+// One symbol tall: only the result row shows, never its neighbours
+const WIN = { x0: -27, x1: 27, z0: 53, z1: 73, r: 2, depth: 3 };
+const REELS = [-17.5, 0, 17.5];
+const REEL_W = 15;
+const STEP = 24; // vertical spacing of the symbols on a reel: wider than the window, so neighbours stay hidden
+const MID = (WIN.z0 + WIN.z1) / 2;
+const RESULT = [4, 0, 4];
+const LEVER = { x: BASE.x + BASE.w + 4, y: -2, z: 58, len: 30 };
+const BULBS = 13;
 
-// ---- Geometry helpers ----
-const wedge = (deg, r0, r1, half) => {
-  const a = deg - half, b = deg + half;
-  return [along(a, r0), along(a, r1), along(b, r1), along(b, r0)];
-};
-// A straight strip along a ray: from r0 to r1, `w` wide, offset sideways by `off`
-const strip = (deg, r0, r1, w, off = 0) => {
-  const [dx, dy] = dir(deg), [nx, ny] = [-dy, dx];
-  const p = (r, s) => [C[0] + dx * r + nx * s, C[1] + dy * r + ny * s];
-  return [p(r0, off - w / 2), p(r1, off - w / 2), p(r1, off + w / 2), p(r0, off + w / 2)];
-};
+const P = k.fitProjection(
+  [...k.boxCorners(PLINTH, -6, 0), ...k.boxCorners(MARQUEE, 0, MARQUEE_TOP + 6), [LEVER.x, LEVER.y, LEVER.z + LEVER.len + 6], [LEVER.x, LEVER.y + LEVER.len, LEVER.z]],
+  WIDTH,
+  HEIGHT,
+  { pad: 18, azimuth: 52 },
+);
+const at = (point) => k.iso(point, P);
+const planeOf = (y) => k.sideMatrix([0, y], 0, P, "left");
 
-function track(deg, r0, r1) {
-  // Two rails on sleepers
-  const out = [];
-  for (let r = r0 + 1.5; r < r1 - 1; r += 3.6) out.push(S(k.extrude(strip(deg, r, r + 1.6, 9), 0, 0.6, P), { tone: "lo", crease: "none" }));
-  for (const off of [-2.6, 2.6]) out.push(S(k.extrude(strip(deg, r0, r1, 1, off), 0.6, RAIL_Z - 0.6, P), { tone: "mid", crease: "none" }));
-  return out.join("");
-}
-
-function stall(i) {
-  const deg = stallAngle(i);
-  const out = [];
-  // The stall: a wedge of walls and roof, door on the face toward the turntable
-  out.push(S(k.extrude(wedge(deg, STALL.r0, STALL.r1, HALF - 0.35), 0, STALL.h, P), { tone: "mid", crease: "lo" }));
-  // Roof skylight along the stall, end to end on the roof
-  out.push(L(k.onTop([along(deg, STALL.r0), along(deg, STALL.r1)], STALL.h, P), { tone: "faint" }));
-  // Door: a thin panel standing just proud of the inner face
-  out.push(S(k.extrude(wedge(deg, STALL.r0 - 0.8, STALL.r0, HALF - 1.6), 0, STALL.door, P), { tone: "mid", crease: "lo" }));
-  // Lamp over the door, on the roof's inner edge
-  const [lx, ly] = along(deg, STALL.r0 + 2.4);
-  out.push(lamp(lx, ly, STALL.h, `lamp-stall-${i}`));
-  return out.join("");
-}
-
-function smokestack(i) {
-  const [x, y] = along(stallAngle(i), (STALL.r0 + STALL.r1) / 2 + 3);
-  return [
-    S(k.cylinder(x, y, 2.2, STALL.h, 7, P, 18, 0.3), { tone: "mid", inner: L(k.sideArc(x, y, 2.2, STALL.h + 4, P, 12), { tone: "faint" }) }),
-    S(k.cylinder(x, y, 2.9, STALL.h + 7, 1.2, P, 18), { tone: "mid" }),
-  ].join("");
-}
-
-function turntablePit() {
-  const [x, y] = C;
-  const ticks = k.radialTicks(x, y, DISC_R - 0.8, 64, 8, DISC_TOP, [1, 2.2], P);
-  return [
-    S(k.cylinder(x, y, PIT_R + 2.4, 0, 1, P, 72, 0.4), { tone: "lo" }),
-    L(k.ring(x, y, PIT_R, 1, P, 72), { tone: "lo" }),
-    S(k.cylinder(x, y, DISC_R, 0, DISC_TOP, P, 72, 0.6), { tone: "mid", inner: L(k.sideArc(x, y, DISC_R, 1.5, P, 40), { tone: "faint" }) }),
-    L(ticks.minor, { tone: "lo" }),
-    L(ticks.major, { tone: "mid" }),
-    S(k.cylinder(x, y, 3.4, DISC_TOP, 1.4, P, 24), { tone: "mid" }),
-  ].join("");
-}
-
-function board() {
-  const out = [`<path class="iso-halo" d="${k.haloOf(k.insetPlan(BOARD, 2), 0, 4, P)}"/>`];
-  // Two legs and a body: a station board at the yard entrance
-  for (const x of [BOARD.x + 8, BOARD.x + BOARD.w - 12]) out.push(S(k.slabOf({ x, y: BOARD.y + 3, w: 4, d: 6, r: 0.6 }, 0, 8, P, 2, 0.3), { tone: "mid" }));
-  out.push(S(k.slabOf(BOARD, 8, BOARD_TOP - 8, P, 4, 1), { tone: "mid", inner: L(k.sideSeam(BOARD, BOARD_TOP - 4, P, 4), { tone: "faint" }) }));
-  const cells = [];
-  for (let row = 0; row < 2; row++) {
-    for (let i = 0; i < CELLS; i++) {
-      const tile = `<rect class="db-flap" x="${-CELL.w / 2}" y="${-CELL.h / 2}" width="${CELL.w}" height="${CELL.h}" rx="0.6"/>`;
-      const glyph = (key) => `<text class="db-flap-text" data-k="${key}" x="0" y="${(CELL.font * 0.36).toFixed(2)}" font-size="${CELL.font}" text-anchor="middle"></text>`;
-      cells.push(
-        `<g data-cell="${row * CELLS + i}" transform="translate(${cellX(i).toFixed(2)} ${-ROW_Z[row]})">${tile}` +
-          `<g clip-path="url(#nf-top)">${glyph("bt")}</g><g clip-path="url(#nf-bottom)">${glyph("bb")}</g>` +
-          `<g clip-path="url(#nf-top)"><g data-k="f1" transform="scale(1 0)">${tile}${glyph("t1")}</g></g>` +
-          `<g clip-path="url(#nf-bottom)"><g data-k="f2" transform="scale(1 0)">${tile}${glyph("t2")}</g></g>` +
-          `<path class="db-flap-seam" d="M${-CELL.w / 2} 0H${CELL.w / 2}"/></g>`,
-      );
-    }
+// ---- Parts ----
+function plinth() {
+  const out = [`<path class="iso-halo" d="${k.haloOf(PLINTH, -6, 6, P)}"/>`];
+  for (const [x, y] of k.corners(PLINTH, 8).sort((a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P))) {
+    out.push(S(k.cylinder(x, y, 5, -6, 2, P, 24), { tone: "lo" }));
   }
-  out.push(
-    `<defs><clipPath id="nf-top"><rect x="${-CELL.w / 2}" y="${-CELL.h / 2}" width="${CELL.w}" height="${CELL.h / 2}"/></clipPath>` +
-      `<clipPath id="nf-bottom"><rect x="${-CELL.w / 2}" y="0" width="${CELL.w}" height="${CELL.h / 2}"/></clipPath></defs>`,
-  );
-  out.push(recess(WIN, FACE_Y, cells.join("")));
-  out.push(D([[BOARD.x + 3, BOARD_TOP - 2.6], [BOARD.x + BOARD.w - 3, BOARD_TOP - 2.6], [BOARD.x + 3, 10.6], [BOARD.x + BOARD.w - 3, 10.6]].map(([x, z]) => at([x, FACE_Y, z])), { size: 0.45 }));
-  out.push(lamp(BOARD.x + BOARD.w - 8, BOARD.y + 6, BOARD_TOP, "lamp-board"));
+  out.push(S(k.slabOf(PLINTH, -4, 4, P, 6, 1), { tone: "mid", inner: L(k.sideSeam(PLINTH, -2, P, 6), { tone: "faint" }) }));
+  out.push(L(k.planOutline(k.insetPlan(PLINTH, 4), 0, P, 6), { tone: "lo" }));
+  out.push(D(k.corners(PLINTH, 6).map(([x, y]) => at([x, y, 0])), { size: 0.5 }));
   return out.join("");
 }
 
-function bin(front) {
-  const t = 1.8;
-  const walls = front
-    ? [{ x: BIN.x, y: BIN.y + BIN.d - t, w: BIN.w, d: t }, { x: BIN.x + BIN.w - t, y: BIN.y, w: t, d: BIN.d }]
-    : [{ x: BIN.x, y: BIN.y, w: BIN.w, d: t }, { x: BIN.x, y: BIN.y, w: t, d: BIN.d }];
-  const out = front ? [] : [S(k.slabOf(BIN, 0, 1, P, 2), { tone: "lo", crease: "none" })];
-  for (const wall of walls) out.push(S(k.slabOf({ ...wall, r: 0.4 }, 1, BIN_H, P, 2, 0.3), { tone: "mid" }));
-  if (front) out.push(lamp(BIN.x + BIN.w - 4, BIN.y + BIN.d - 4, BIN_H + 1, "lamp-lost"));
+function base() {
+  const face = BASE.y + BASE.d;
+  const out = [S(k.slabOf(BASE, 0, BASE_TOP, P, 4, 1), { tone: "mid", inner: L(k.sideSeam(BASE, 6, P, 4) + k.sideSeam(BASE, BASE_TOP - 4, P, 4), { tone: "faint" }) })];
+  // Front: coin slot, a belly-glass panel outline and corner screws
+  out.push(`<g transform="${planeOf(face)}">` +
+    `<rect class="sm-slot" x="${-7}" y="${-(BASE_TOP - 9)}" width="14" height="2.4" rx="1.2"/>` +
+    `<rect class="sm-panel" x="${BASE.x + 6}" y="${-(BASE_TOP - 15)}" width="${BASE.w - 12}" height="${BASE_TOP - 32}" rx="2"/>` +
+    `</g>`);
+  out.push(D([[BASE.x + 3, BASE_TOP - 3], [BASE.x + BASE.w - 3, BASE_TOP - 3], [BASE.x + 3, 9], [BASE.x + BASE.w - 3, 9]].map(([x, z]) => at([x, face, z])), { size: 0.5 }));
+  // Side: a recessed service panel on the +x face, with its screws
+  const side = BASE.x + BASE.w;
+  out.push(L(k.pathOf([[side, -14, 10], [side, 10, 10], [side, 10, 32], [side, -14, 32]].map(at), true), { tone: "lo" }));
+  out.push(D([[-12, 12], [8, 12], [-12, 30], [8, 30]].map(([y, z]) => at([side, y, z])), { size: 0.45 }));
   return out.join("");
 }
 
-function buffer(deg, r) {
-  // A buffer stop at the end of a track
-  const [x, y] = along(deg, r);
-  return S(k.extrude(strip(deg, r - 1, r + 2, 11), 0, 6, P), { tone: "mid" }) + D([at([x, y, 6])], { size: 0.5 });
+function tray() {
+  // The payout tray: a shallow box standing out from the front, always empty
+  const plan = { x: -18, y: BASE.y + BASE.d, w: 36, d: 9, r: 1.2 };
+  return [
+    S(k.slabOf(plan, 6, 6, P, 2, 0.6), { tone: "mid" }),
+    L(k.planOutline(k.insetPlan(plan, 1.6), 12, P, 2), { tone: "lo" }),
+  ].join("");
 }
 
-// ---- Assemble, back to front ----
-const stalls = Array.from({ length: POSTS }, (_, i) => i).sort((a, b) => k.depthOf([...along(stallAngle(a), 52), 0], P) - k.depthOf([...along(stallAngle(b), 52), 0], P));
+function reelStrip(i) {
+  // Three copies of 0-9 so a spinning reel never runs out of symbols
+  const x = REELS[i];
+  const symbols = [];
+  for (let n = 0; n < 30; n++) {
+    symbols.push(`<text class="sm-digit" x="${x}" y="${(-MID + n * STEP + 4.6).toFixed(2)}" font-size="13" text-anchor="middle">${n % 10}</text>`);
+  }
+  return `<g data-part="reel-${i}">${symbols.join("")}</g>`;
+}
 
+function housing() {
+  const out = [S(k.slabOf(HOUSING, BASE_TOP, HOUSING_TOP - BASE_TOP, P, 4, 1), { tone: "mid", inner: L(k.sideSeam(HOUSING, BASE_TOP + 4, P, 4), { tone: "faint" }) })];
+  // The reel window: three drums behind glass, with dividers, a shade at top and bottom, and the payline
+  const reels = [];
+  for (const x of REELS) reels.push(`<rect class="sm-drum" x="${x - REEL_W / 2}" y="${-WIN.z1}" width="${REEL_W}" height="${WIN.z1 - WIN.z0}"/>`);
+  for (let i = 0; i < 3; i++) reels.push(reelStrip(i));
+  for (const x of [REELS[0] + REEL_W / 2 + 1.25, REELS[1] + REEL_W / 2 + 1.25]) reels.push(`<rect class="sm-divider" x="${x - 1.25}" y="${-WIN.z1}" width="2.5" height="${WIN.z1 - WIN.z0}"/>`);
+  reels.push(`<rect class="sm-shade-top" x="${WIN.x0}" y="${-WIN.z1}" width="${WIN.x1 - WIN.x0}" height="4"/>`);
+  reels.push(`<rect class="sm-shade-bottom" x="${WIN.x0}" y="${-(WIN.z0 + 4)}" width="${WIN.x1 - WIN.x0}" height="4"/>`);
+  reels.push(`<path class="iso-line" data-tone="lit" style="stroke-width:.9" d="M${WIN.x0} ${-MID}H${WIN.x1}"/>`);
+  out.push(`<defs>` +
+    `<linearGradient id="sm-fade-top" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="sm-stop" stop-opacity=".85"/><stop offset="1" class="sm-stop" stop-opacity="0"/></linearGradient>` +
+    `<linearGradient id="sm-fade-bottom" x1="0" y1="1" x2="0" y2="0"><stop offset="0" class="sm-stop" stop-opacity=".85"/><stop offset="1" class="sm-stop" stop-opacity="0"/></linearGradient>` +
+    `</defs>`);
+  out.push(recess(WIN, FACE, reels.join(""), "sm-well", P));
+  // A bezel round the window and the screws that hold it
+  out.push(`<g transform="${planeOf(FACE)}"><rect class="sm-bezel" x="${WIN.x0 - 3}" y="${-(WIN.z1 + 3)}" width="${WIN.x1 - WIN.x0 + 6}" height="${WIN.z1 - WIN.z0 + 6}" rx="3.5"/></g>`);
+  out.push(D([[WIN.x0 - 1.5, WIN.z1 + 1.5], [WIN.x1 + 1.5, WIN.z1 + 1.5], [WIN.x0 - 1.5, WIN.z0 - 1.5], [WIN.x1 + 1.5, WIN.z0 - 1.5]].map(([x, z]) => at([x, FACE, z])), { size: 0.5 }));
+  // Three buttons under the window: one per reel
+  for (const x of REELS) out.push(S(k.slabOf({ x: x - 4, y: FACE, w: 8, d: 2.4, r: 1 }, BASE_TOP + 3, 3.6, P, 2, 0.3), { tone: "mid" }));
+  return out.join("");
+}
+
+function marquee() {
+  const face = MARQUEE.y + MARQUEE.d;
+  const out = [S(k.slabOf(MARQUEE, HOUSING_TOP, MARQUEE_TOP - HOUSING_TOP, P, 5, 1.2), { tone: "mid", inner: L(k.sideSeam(MARQUEE, HOUSING_TOP + 3, P, 5), { tone: "faint" }) })];
+  // A row of bulbs across the marquee face; the live code chases and flashes them
+  const bulbs = [];
+  for (let n = 0; n < BULBS; n++) {
+    const x = MARQUEE.x + 6 + (n * (MARQUEE.w - 12)) / (BULBS - 1);
+    bulbs.push(`<circle class="sm-bulb" cx="${x.toFixed(2)}" cy="${-(HOUSING_TOP + 8)}" r="2"/>` +
+      `<circle class="sm-bulb-on" data-bulb="${n}" cx="${x.toFixed(2)}" cy="${-(HOUSING_TOP + 8)}" r="2" style="opacity:0"/>`);
+  }
+  out.push(`<g transform="${planeOf(face)}">${bulbs.join("")}</g>`);
+  out.push(lamp(0, -2, MARQUEE_TOP, "lamp-top", P));
+  return out.join("");
+}
+
+function leverMount() {
+  return [
+    S(k.slabOf({ x: BASE.x + BASE.w, y: LEVER.y - 6, w: 3, d: 12, r: 1 }, LEVER.z - 7, 14, P, 2, 0.4), { tone: "mid" }),
+    S(k.slabOf({ x: BASE.x + BASE.w + 3, y: LEVER.y - 3.5, w: 2.4, d: 7, r: 1.4 }, LEVER.z - 3.5, 7, P, 2, 0.3), { tone: "mid" }),
+  ].join("");
+}
+
+// The lever arm swings in the plane just off the +x face; u = 0 upright, 1 pulled all the way
+const leverEnd = (u) => {
+  const a = u * 1.95;
+  return [LEVER.x, LEVER.y + Math.sin(a) * LEVER.len, LEVER.z + Math.cos(a) * LEVER.len];
+};
+const leverD = (u) => k.segment([LEVER.x, LEVER.y, LEVER.z], leverEnd(u), P);
+const knob = () => S(k.cylinder(0, 0, 3.6, -3, 6, P, 24, 0.4), { tone: "hi", crease: "lo" });
+
+// ---- Assemble ----
 const svg = k.figureSvg({
   width: WIDTH,
   height: HEIGHT,
-  label: `A railway roundhouse for a lost request. ${POSTS} stalls, one per post on this site, stand in an arc round a turntable. A split-flap board at the yard entrance shows the requested path and 404. The turntable lines up with every stall in turn; each lamp flashes and each door stays shut, and the crate ends in the lost-and-found bin.`,
+  label: "A slot machine. Its lever pulls, the three reels spin, and they stop on 4, 0, 4.",
   body: [
-    deck("HTTP 404"),
-    ...Array.from({ length: POSTS }, (_, i) => track(stallAngle(i), PIT_R + 1, STALL.r0 - 0.8)),
-    ...stalls.map((i) => stall(i)),
-    ...[2, 6, 10, 13].filter((i) => i < POSTS).map((i) => smokestack(i)),
-    track(LOST, PIT_R + 1, LOST_LEN),
-    turntablePit(),
-    `<g data-part="bridge"></g>`,
-    bin(false),
-    `<g data-part="cart"></g>`,
-    `<g data-part="crate" transform="${k.translateAlong(P, [...along(ENTRY, ENTRY_LEN - 8), CART_TOP])}">${crateSvg(9, 7, 6, "hi", true)}</g>`,
-    track(ENTRY, PIT_R + 1, ENTRY_LEN),
-    buffer(ENTRY, ENTRY_LEN + 1),
-    bin(true),
-    board(),
+    plinth(),
+    base(),
+    tray(),
+    housing(),
+    marquee(),
+    leverMount(),
+    `<path data-part="lever" class="iso-line" data-tone="hi" data-free="end" style="stroke-width:2.2" d="${leverD(0)}"/>`,
+    // The pivot bolt the lever turns on
+    D([at([LEVER.x, LEVER.y, LEVER.z])], { size: 1.6, tone: "hi" }),
+    `<g data-part="knob" transform="${k.translateAlong(P, leverEnd(0))}">${knob()}</g>`,
   ],
 });
 
 const live = `
 const P = ${JSON.stringify(P)};
-const C = ${JSON.stringify(C)}, DISC_TOP = ${DISC_TOP}, POSTS = ${POSTS}, CELLS = ${CELLS};
-const STALLS = ${JSON.stringify(Array.from({ length: POSTS }, (_, i) => stallAngle(i)))}, LOST = ${LOST}, ENTRY = ${ENTRY};
-const ENTRY_LEN = ${ENTRY_LEN}, LOST_LEN = ${LOST_LEN}, CART_TOP = ${CART_TOP}, BIN_C = ${JSON.stringify(BIN_C)}, BIN_FLOOR = 1;
-const dir = (deg) => [Math.cos((deg * Math.PI) / 180), Math.sin((deg * Math.PI) / 180)];
-const along = (deg, r) => [C[0] + dir(deg)[0] * r, C[1] + dir(deg)[1] * r];
-
-// The path this page was asked for, read from the page around the figure
-const asked = (() => {
-  try { if (parent !== window) return parent.location.pathname; } catch {}
-  return "/no-such-page";
-})();
-const fit = (s) => (s.length > CELLS ? s.slice(0, CELLS - 1) + "…" : s).toUpperCase().padEnd(CELLS, " ");
-const ROWS = fit(asked) + fit("404 NOT FOUND");
-
-const START = ENTRY_LEN - 8;
-const FIRST = STALLS[POSTS - 1], LAST = STALLS[0];
-const SWEEP = [3.6, 3.6 + POSTS * 0.36];
-const TT = { flip: 0.3, roll: [0.6, 2.4], toFirst: [2.6, 3.6], sweep: SWEEP, swing: [SWEEP[1] + 0.2, SWEEP[1] + 1.3], out: [SWEEP[1] + 1.5, SWEEP[1] + 2.6], drop: [SWEEP[1] + 2.7, SWEEP[1] + 3.1], reset: SWEEP[1] + 5.4 };
-const CYCLE = TT.reset + 1.6;
+const LEVER = ${JSON.stringify(LEVER)}, STEP = ${STEP}, RESULT = ${JSON.stringify(RESULT)}, BULBS = ${BULBS};
+const leverEnd = ${leverEnd.toString()};
+const leverD = (u) => segment([LEVER.x, LEVER.y, LEVER.z], leverEnd(u), P);
+const T = { pull: [0.3, 0.75], release: [0.75, 1.25], spin: 0.7, stops: [2.3, 2.9, 3.5], result: 3.6, reset: 6.2, cycle: 7 };
+const LOOPS = [3, 4, 5]; // full turns each reel makes before it lands
 
 const svg = document.querySelector(".iso-stage svg");
 const part = (name) => svg.querySelector('[data-part="' + name + '"]');
-const bridge = part("bridge"), cart = part("cart"), crate = part("crate");
-const stallLamps = STALLS.map((_, i) => part("lamp-stall-" + i));
-const lamps = { board: part("lamp-board"), lost: part("lamp-lost") };
-const cells = [...svg.querySelectorAll("[data-cell]")].map((g) => ({
-  bt: g.querySelector('[data-k="bt"]'), bb: g.querySelector('[data-k="bb"]'),
-  f1: g.querySelector('[data-k="f1"]'), t1: g.querySelector('[data-k="t1"]'),
-  f2: g.querySelector('[data-k="f2"]'), t2: g.querySelector('[data-k="t2"]'),
-}));
-const setText = (node, text) => { if (node.textContent !== text) node.textContent = text; };
-const setFlap = (node, s) => { const v = "scale(1 " + s.toFixed(3) + ")"; if (node.getAttribute("transform") !== v) node.setAttribute("transform", v); };
+const lever = part("lever"), knob = part("knob"), beacon = part("lamp-top");
+const reels = [0, 1, 2].map((i) => part("reel-" + i));
+const bulbs = [...svg.querySelectorAll("[data-bulb]")];
 
-function drawBoard(t) {
-  cells.forEach((cell, i) => {
-    const local = (t - TT.flip - i * 0.03) / 0.45;
-    const next = t < TT.reset ? ROWS[i] : " ";
-    if (local >= 1 || local < 0) {
-      const shown = local >= 1 ? next : " ";
-      setText(cell.bt, shown); setText(cell.bb, shown); setFlap(cell.f1, 0); setFlap(cell.f2, 0);
-      return;
-    }
-    setText(cell.bt, next); setText(cell.bb, " "); setText(cell.t1, " "); setText(cell.t2, next);
-    setFlap(cell.f1, local < 0.5 ? Math.cos(local * Math.PI) : 0);
-    setFlap(cell.f2, local >= 0.5 ? -Math.cos(local * Math.PI) : 0);
-  });
+// A reel's travel, in symbols: fast, then easing into its symbol with a small settle past it
+function travel(i, t) {
+  const total = LOOPS[i] * 10 + RESULT[i] + 10;
+  const u = Math.min(1, Math.max(0, (t - T.spin) / (T.stops[i] - T.spin)));
+  const eased = 1 - Math.pow(1 - u, 3);
+  const settle = u >= 1 ? Math.exp(-(t - T.stops[i]) * 9) * Math.sin((t - T.stops[i]) * 26) * 0.08 : 0;
+  return total * eased + settle;
 }
 
-// What turns is rebuilt from its floor outline each frame
-const strip = (deg, cx, cy, half, w, off = 0) => {
-  const [dx, dy] = dir(deg), [nx, ny] = [-dy, dx];
-  const p = (r, s) => [cx + dx * r + nx * s, cy + dy * r + ny * s];
-  return [p(-half, off - w / 2), p(half, off - w / 2), p(half, off + w / 2), p(-half, off + w / 2)];
-};
-const solid = (ring, z, h, style) => solidSvg(extrude(ring, z, h, P), style);
-
-function bridgeSvg(deg) {
-  const out = [solid(strip(deg, C[0], C[1], 22.5, 11), DISC_TOP, 1.2, { tone: "mid" })];
-  for (const off of [-2.6, 2.6]) out.push(solid(strip(deg, C[0], C[1], 22.5, 1, off), DISC_TOP + 1.2, 1.4, { tone: "hi", crease: "lo" }));
-  // The operator's cabin at one end of the bridge
-  const [ex, ey] = along(deg + 180, 19);
-  out.push(solid(strip(deg, ex, ey, 2.6, 6), DISC_TOP + 1.2, 6, { tone: "mid" }));
-  return out.join("");
+function phaseOf(t) {
+  if (t >= T.reset) return "resetting";
+  if (t < T.spin) return "pulling the lever";
+  if (t < T.stops[0]) return "spinning";
+  if (t < T.stops[1]) return "4";
+  if (t < T.stops[2]) return "4 0";
+  return "404";
 }
 
-function cartSvg(x, y, deg) {
-  return solid(strip(deg, x, y, 6, 8), DISC_TOP + 2.6, CART_TOP - DISC_TOP - 2.6, { tone: "mid", crease: "lo" });
-}
-
-function pose(t, fixed) {
-  const lerp = (a, b, span) => a + (b - a) * ease(span[0], span[1], t);
-  let a = ENTRY;
-  if (t >= TT.toFirst[0]) a = lerp(ENTRY + 360, FIRST, TT.toFirst);
-  if (t >= TT.sweep[0]) a = lerp(FIRST, LAST, TT.sweep);
-  const end = fixed ? ENTRY + 360 : LOST + 360;
-  if (t >= TT.swing[0]) a = lerp(LAST, end, TT.swing);
-  if (t >= TT.reset) a = lerp(end, ENTRY + 360, [TT.reset, TT.reset + 1]);
-  let r = START * (1 - ease(...TT.roll, t)), ra = ENTRY;
-  if (t >= TT.toFirst[0]) { r = 0; ra = a; }
-  if (t >= TT.out[0] && t < TT.reset) { ra = fixed ? ENTRY : LOST; r = (fixed ? START : LOST_LEN - 4) * ease(...TT.out, t); }
-  if (t >= TT.reset) { ra = ENTRY; r = START * ease(TT.reset, TT.reset + 1.2, t); }
-  const [cx, cy] = along(ra, r);
-  return { a, cx, cy, ca: ra };
-}
-
-function phaseOf(t, fixed) {
-  if (t >= TT.reset) return "resetting";
-  if (t < TT.roll[1]) return "GET " + asked;
-  if (t < TT.sweep[0]) return "404 · looking for a stall";
-  if (t < TT.sweep[1]) {
-    const n = Math.min(POSTS, 1 + Math.floor(((t - TT.sweep[0]) / (TT.sweep[1] - TT.sweep[0])) * POSTS));
-    return "stall " + n + "/" + POSTS + " · no match";
-  }
-  if (fixed) return t < TT.out[1] ? "routing you home" : "→ /";
-  return POSTS + " stalls · no match · lost & found";
-}
-
-let routed = false;
 runFigure({
-  cycle: CYCLE,
-  scrubEnd: TT.reset - 0.2,
-  steps: [0.2, TT.roll[1], (TT.sweep[0] + TT.sweep[1]) / 2, TT.sweep[1], TT.drop[1] + 0.3],
-  label: (fixed) => (fixed ? "Routing you home…" : "Route me home"),
+  scrub: false,
+  cycle: T.cycle,
+  scrubEnd: T.reset - 0.2,
+  steps: [0.2, T.release[1], T.stops[0] + 0.1, T.stops[1] + 0.1, T.result + 0.3],
+  label: () => "",
   phase: phaseOf,
-  draw(t, fixed) {
-    const p = pose(t, fixed);
-    bridge.innerHTML = bridgeSvg(p.a);
-    cart.innerHTML = cartSvg(p.cx, p.cy, p.ca);
-    let crateAt = [p.cx, p.cy, CART_TOP];
-    if (!fixed && t >= TT.drop[0] && t < TT.reset) {
-      const u = ease(...TT.drop, t);
-      crateAt = [p.cx + (BIN_C[0] - p.cx) * u, p.cy + (BIN_C[1] - p.cy) * u, CART_TOP + (BIN_FLOOR - CART_TOP) * u + Math.sin(Math.PI * u) * 6];
-    }
-    crate.setAttribute("transform", translateAlong(P, crateAt));
-    // Each stall lamp flashes as the bridge lines up with it
-    stallLamps.forEach((l, i) => {
-      const on = t >= TT.sweep[0] - 0.1 && t <= TT.sweep[1] + 0.2 ? Math.max(0, 1 - Math.abs(((p.a - STALLS[i]) % 360 + 540) % 360 - 180) / 4.5) : 0;
-      l.style.opacity = on.toFixed(3);
+  draw(t) {
+    const back = 1 - ease(T.reset, T.reset + 0.5, t);
+    const u = ease(...T.pull, t) * (1 - ease(...T.release, t));
+    lever.setAttribute("d", leverD(u));
+    knob.setAttribute("transform", translateAlong(P, leverEnd(u)));
+    reels.forEach((reel, i) => {
+      // Before the first spin and after the reset fade, each reel rests on its result
+      const s = t < T.spin || t >= T.reset ? 10 + RESULT[i] : travel(i, t);
+      const offset = (((s % 10) + 10) % 10) + 10;
+      reel.setAttribute("transform", "translate(0 " + (-offset * STEP).toFixed(2) + ")");
     });
-    lamps.board.style.opacity = (t > TT.flip && t < TT.reset && Math.floor(t * 2) % 2 === 0 ? 1 : 0).toString();
-    lamps.lost.style.opacity = (!fixed && t >= TT.drop[1] && t < TT.reset ? 1 : 0).toString();
-    drawBoard(t);
-    // Only a reader's own press of "Route me home" leaves the page, never the idle tour
-    if (fixed && routed && t >= TT.out[1]) { routed = false; (parent === window ? window : parent).location.href = "/"; }
+    // Bulbs chase while the reels spin, then all flash on 404
+    const spinning = t >= T.spin && t < T.result;
+    const won = t >= T.result && t < T.reset;
+    bulbs.forEach((b, n) => {
+      const on = spinning ? (((Math.floor(t * 14) - n) % 4) + 4) % 4 === 0 : won ? Math.floor(t * 4) % 2 === 0 : false;
+      b.style.opacity = on ? "1" : "0";
+    });
+    beacon.style.opacity = (won ? back : 0).toFixed(3);
   },
-});
-document.querySelector("[data-fix]").addEventListener("click", () => {
-  routed = document.querySelector("[data-fix]").getAttribute("aria-pressed") === "true";
 });
 `;
 
 writeFigure("404", {
-  fig: "Fig 404",
-  title: "Roundhouse",
-  readout: "GET /no-such-page",
-  keys: [
-    { mark: "lit", label: "Your request" },
-    { mark: "raised", label: `${POSTS} stalls, one per post on this site` },
-  ],
-  caption: `Every stall in this roundhouse is a post on the site. Your path matched none of the ${POSTS}, so the request went to lost and found. Route me home rolls it back out the way it came and takes you to the home page.`,
+  bare: true,
+  fig: "",
+  title: "",
+  hint: "",
+  readout: "",
+  keys: [],
+  caption: "",
   svg,
-  stageLabel: "404 roundhouse. Arrow keys step through the run; Space routes you home.",
+  stageLabel: "Slot machine. Its reels stop on 4, 0, 4. Arrow keys step through the spin.",
   live,
+  fix: false,
   css:
     DOCKBAY_CSS +
-    `.db-flap{fill:var(--db-flap)}.db-flap-text{fill:var(--db-flap-text);font-family:var(--anatomy-mono);font-weight:600}.db-flap-seam{stroke:var(--db-well);stroke-width:.3}`,
+    `.iso{--sm-glass:#f1f1ee;--sm-drum:#fbfbfa;--sm-digit:#26262a;--sm-bulb:#d4d4d6;--sm-bulb-on:#000}` +
+    `.iso[data-theme="dark"]{--sm-glass:#0c0c0c;--sm-drum:#181818;--sm-digit:#e6e6e6;--sm-bulb:#2a2a2a;--sm-bulb-on:#fff}` +
+    `.sm-well{fill:var(--sm-glass)}.sm-drum{fill:var(--sm-drum)}.sm-digit{fill:var(--sm-digit);font-family:var(--anatomy-mono);font-weight:700}` +
+    `.sm-divider{fill:var(--anatomy-mid)}.sm-stop{stop-color:var(--sm-glass)}.sm-shade-top{fill:url(#sm-fade-top)}.sm-shade-bottom{fill:url(#sm-fade-bottom)}` +
+    `.sm-bezel{fill:none;stroke:var(--anatomy-lo);stroke-width:.7}.sm-slot{fill:var(--db-flap)}.sm-panel{fill:none;stroke:var(--anatomy-lo);stroke-width:.6}` +
+    `.sm-bulb{fill:var(--sm-bulb)}.sm-bulb-on{fill:var(--sm-bulb-on)}`,
 });

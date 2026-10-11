@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tqETY64aX7dvMQF4lgxREDICp5BMfgJ7UHTgUdVScRY=' 'sha256-+S+Wfcq7xCSHnWK+H+hfzcXQP95MaSxXUrS/lxdxlZs='; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1"><title>One email, one GET</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-tqETY64aX7dvMQF4lgxREDICp5BMfgJ7UHTgUdVScRY=' 'sha256-SKl1hHvXbgXr2EKUUDsoBxL6BV6y4u6G+CzGzZ01dtg='; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width, initial-scale=1"><title>One email, one GET</title><style>
 .iso{
   --anatomy-page:#0b0b0b;--anatomy-card:#131313;--anatomy-text:#a3a3a3;--anatomy-strong:#e6e6e6;--anatomy-muted:#6e6e6e;
   --anatomy-paper:#131313;--anatomy-face:#1b1b1b;--anatomy-top:#1c1c1c;
@@ -114,6 +114,8 @@ body{margin:0;background:var(--anatomy-page);color:var(--anatomy-text);font:14px
 
 html{color-scheme:light dark}
 html,body{background:transparent}
+/* Sized to its content by the post page; shadows that spill past the edge must not add a scrollbar */
+html,body{overflow:hidden}
 body{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13px}
 .iso-page{width:100%;margin:0}
 .iso-figure{margin:0}
@@ -810,7 +812,7 @@ const ISO_CSS = `
 // A figure is a pure function of cycle time t and one boolean: the bug (false) or the fix (true).
 // This drives the idle tour (alternating bug and fix), hover scrubbing, arrow-key steps,
 // the fix toggle, the offscreen pause and reduced motion, and writes the readout.
-function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
+function runFigure({ cycle, scrubEnd, steps, draw, phase, label, scrub = true }) {
   const stage = document.querySelector(".iso-stage");
   const svg = stage.querySelector("svg");
   const readout = document.querySelector("[data-readout]");
@@ -906,7 +908,7 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
   });
 
   stage.addEventListener("pointermove", (event) => {
-    if (event.pointerType !== "mouse") return;
+    if (!scrub || event.pointerType !== "mouse") return;
     const box = svg.getBoundingClientRect();
     const share = Math.min(
       1,
@@ -978,8 +980,7 @@ const needleD = (x, turn) => {
   const a = turn * Math.PI * 2;
   return lineOnTop([x - Math.sin(a) * 1, WHEEL_Y + Math.cos(a) * 1], [x + Math.sin(a) * (WHEEL_R - 1.2), WHEEL_Y - Math.cos(a) * (WHEEL_R - 1.2)], STATION_TOP + 3.1, P);
 };
-const leversD = (offs) =>
-  BREAKERS.map((x, i) => `M${x} ${-BREAKER_Z}L${x} ${-(BREAKER_Z + (offs[i] ? -3.6 : 3.6))}`).join("");
+const leversD = (offs) => BREAKERS.map((x, i) => `M${x} ${-BREAKER_Z}L${x} ${-(BREAKER_Z + (offs[i] ? -3.6 : 3.6))}`).join("");
 
 const svg = document.querySelector(".iso-stage svg");
 const part = (name) => svg.querySelector('[data-part="' + name + '"]');

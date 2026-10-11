@@ -71,18 +71,18 @@ export function deck(advisory) {
  * A status lamp: base ring, housing and a dome that the live code switches with data-on on `part`.
  * The off dome is always drawn; the on dome sits on top and fades in.
  */
-export function lamp(x, y, z, part) {
+export function lamp(x, y, z, part, proj = P) {
   return [
-    S(k.cylinder(x, y, 4.2, z, 1.4, P, 24), { tone: "mid" }),
-    S(k.cylinder(x, y, 3.2, z + 1.4, 3, P, 24), { tone: "mid" }),
-    L(k.sideArc(x, y, 3.2, z + 3, P, 16), { tone: "faint" }),
-    S(k.cylinder(x, y, 2.4, z + 4.4, 2.4, P, 24), { tone: "lo" }),
-    `<g class="db-lamp-on" data-part="${part}" style="opacity:0">${S(k.cylinder(x, y, 2.4, z + 4.4, 2.4, P, 24), { tone: "hi", crease: "none" })}</g>`,
+    S(k.cylinder(x, y, 4.2, z, 1.4, proj, 24), { tone: "mid" }),
+    S(k.cylinder(x, y, 3.2, z + 1.4, 3, proj, 24), { tone: "mid" }),
+    L(k.sideArc(x, y, 3.2, z + 3, proj, 16), { tone: "faint" }),
+    S(k.cylinder(x, y, 2.4, z + 4.4, 2.4, proj, 24), { tone: "lo" }),
+    `<g class="db-lamp-on" data-part="${part}" style="opacity:0">${S(k.cylinder(x, y, 2.4, z + 4.4, 2.4, proj, 24), { tone: "hi", crease: "none" })}</g>`,
   ].join("");
 }
 
 /** Maps a group's local (x, -z) onto the vertical face at y that looks toward +y. */
-export const planeOf = (y) => k.sideMatrix([0, y], 0, P, "left");
+export const planeOf = (y, proj = P) => k.sideMatrix([0, y], 0, proj, "left");
 export const flat = (x0, z0, x1, z1, r, steps = 6) =>
   k.pathOf(k.roundedPlan({ x: x0, y: z0, w: x1 - x0, d: z1 - z0, r }, steps).map(([u, z]) => [u, -z]), true);
 
@@ -91,12 +91,14 @@ export const flat = (x0, z0, x1, z1, r, steps = 6) =>
  * `back` is drawn on the window's back plane, in that plane's local (x, -z) coordinates.
  * Adapted from the kit's desk-computer example.
  */
-export function recess({ x0, x1, z0, z1, r, depth }, y, back = "", backClass = "db-well") {
+export function recess({ x0, x1, z0, z1, r, depth }, y, back = "", backClass = "db-well", proj = P) {
+  const at = (point) => k.iso(point, proj);
+  const planeOf = (py) => k.sideMatrix([0, py], 0, proj, "left");
   const id = clipId("recess");
   const ring = k.roundedPlan({ x: x0, y: z0, w: x1 - x0, d: z1 - z0, r }, 6);
   const cx = (x0 + x1) / 2;
   const cz = (z0 + z1) / 2;
-  const { sinA } = k.cameraOf(P);
+  const { sinA } = k.cameraOf(proj);
   const tops = [];
   const sides = [[], [], [], []];
   ring.forEach(([ax, az], index) => {
