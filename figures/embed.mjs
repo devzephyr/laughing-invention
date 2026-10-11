@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +39,26 @@ new ResizeObserver(reportHeight).observe(document.body);
 addEventListener("message", (e) => { if (e.origin === location.origin && e.data === "figure:measure") reportHeight(); });
 `;
 
+// Only this page's own inline scripts may run: each is pinned by its SHA-256.
+// Styles stay inline (the SVG uses style attributes, which hashes cannot cover).
+function withCsp(html) {
+  const hashes = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].map(
+    ([, body]) => `'sha256-${createHash("sha256").update(body).digest("base64")}'`,
+  );
+  const policy = [
+    "default-src 'none'",
+    `script-src ${hashes.join(" ")}`,
+    "style-src 'unsafe-inline'",
+    "img-src 'self' data:",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join("; ");
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+  const out = html.replace('<meta charset="utf-8">', `<meta charset="utf-8">${meta}`);
+  if (out === html) throw new Error("pageHtml markup changed: could not place the CSP meta");
+  return out;
+}
+
 /**
  * Writes static/figures/<slug>.html: the card, the fix toggle, and the live code on top of the
  * kit and the shared runtime (runtime.js). `live` must end by calling runFigure({...}).
@@ -66,6 +87,6 @@ export function writeFigure(slug, { title, fig, hint = "Hover to scrub · arrows
     .replace('<main class="iso-page">', `${THEME}<main class="iso-page">`);
   mkdirSync(OUT, { recursive: true });
   const file = join(OUT, `${slug}.html`);
-  writeFileSync(file, html);
+  writeFileSync(file, withCsp(html));
   console.log("wrote", file, `${(html.length / 1024).toFixed(0)} KB`);
 }

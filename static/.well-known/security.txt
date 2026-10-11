@@ -1,0 +1,5 @@
+Contact: mailto:folarinabdul30@gmail.com
+Expires: 2027-10-11T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://blog.adeyemi.xyz/.well-known/security.txt
+Policy: https://blog.adeyemi.xyz/security

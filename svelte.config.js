@@ -25,8 +25,17 @@ const highlighter = await createHighlighter({
     "php",
     "ruby",
     "java",
+    "dockerfile",
   ],
 });
+
+const escapeHtml = (text) =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/{/g, "&#123;")
+    .replace(/}/g, "&#125;");
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -37,17 +46,19 @@ const config = {
       extensions: [".md"],
       highlight: {
         highlighter: async (code, lang) => {
+          let html;
           try {
-            const html = highlighter.codeToHtml(code, {
+            html = highlighter.codeToHtml(code, {
               lang: lang || "text",
               // Light colors inline; dark ones as --shiki-dark vars, swapped in app.css
               themes: { light: "github-light", dark: "github-dark" },
             });
-            return `{@html \`${html}\` }`;
           } catch (e) {
-            // Fallback for unknown languages
-            return `<pre><code>${code}</code></pre>`;
+            // Unknown language: plain block, escaped so <, & and { in the code stay text
+            html = `<pre><code>${escapeHtml(code)}</code></pre>`;
           }
+          // JSON.stringify keeps every backslash and backtick intact inside the Svelte expression
+          return `{@html ${JSON.stringify(html)}}`;
         },
       },
     }),
@@ -56,6 +67,25 @@ const config = {
     adapter: adapter({
       runtime: "nodejs22.x",
     }),
+    // Prerendered pages get this as a <meta> CSP with hashes of SvelteKit's own inline scripts.
+    // frame-ancestors can't live in a <meta> policy, so it is sent as a header from vercel.json.
+    csp: {
+      mode: "auto",
+      directives: {
+        "default-src": ["self"],
+        // va.vercel-scripts.com serves the Speed Insights debug script in development
+        "script-src": ["self", "https://va.vercel-scripts.com"],
+        // Shiki colours code with inline style attributes
+        "style-src": ["self", "unsafe-inline"],
+        "img-src": ["self", "data:"],
+        "font-src": ["self"],
+        "connect-src": ["self", "https://va.vercel-scripts.com"],
+        "frame-src": ["self"],
+        "object-src": ["none"],
+        "base-uri": ["self"],
+        "form-action": ["self"],
+      },
+    },
   },
 };
 
