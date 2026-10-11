@@ -5,7 +5,8 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview"
+		"preview": "vite preview",
+		"figures": "for f in figures/*/build.mjs; do node \"$f\" || exit 1; done"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-vercel": "^6.2.0",

@@ -75,6 +75,8 @@ So an attacker sets up a domain, say `rebind.attacker.test`, configured with a T
 - **Query 1 (Check time):** Your server's `assertUrlSafe` asks "What is `rebind.attacker.test`?" The attacker's DNS server responds: `8.8.8.8` (a perfectly safe, public Google IP). The validator checks `8.8.8.8`, says "Looks great!", and exits cleanly.
 - **Query 2 (Connection time):** Milliseconds later, `fetch()` asks "What is `rebind.attacker.test`?" The attacker's DNS server responds: `127.0.0.1` (or `169.254.169.254`). Undici opens a TCP socket to `127.0.0.1:8124`, sends the HTTP request, and reads the response.
 
+<iframe class="figure-frame" src="/figures/mcp-from-openapi-ssrf-dns-toctou.html" title="Interactive figure: DNS rebinding against a check-then-fetch guard" loading="lazy"></iframe>
+
 Here is a minimal reproduction script using Node's standard modules to model this exact race condition:
 
 ```javascript

@@ -103,6 +103,18 @@
 			wrapper.appendChild(pre);
 			wrapper.appendChild(copyButton);
 		});
+
+		// Figures report their content height so each iframe fits without an inner scrollbar
+		const sizeFigure = (e: MessageEvent) => {
+			if (e.origin !== location.origin) return;
+			const height = e.data?.height;
+			if (typeof height !== 'number' || !Number.isFinite(height)) return;
+			for (const frame of document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame')) {
+				if (frame.contentWindow === e.source) frame.style.height = `${Math.ceil(height)}px`;
+			}
+		};
+		window.addEventListener('message', sizeFigure);
+		return () => window.removeEventListener('message', sizeFigure);
 	});
 </script>
 
