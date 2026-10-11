@@ -127,7 +127,7 @@
 	<meta name="description" content={data.metadata.description} />
 </svelte:head>
 
-<div class="content-container">
+<div class="content-container wide">
 	<article class="blog-post">
 		<header class="post-header">
 			<a href="/blog" class="back-link mono secondary">← Back to blog</a>

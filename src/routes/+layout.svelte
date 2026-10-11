@@ -31,7 +31,8 @@
 <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
 <div class="app">
-	<nav class="site-nav content-container" aria-label="Site">
+	<!-- Post pages are wider; the nav matches so their left edges line up -->
+	<nav class="site-nav content-container" class:wide={page.url.pathname.startsWith('/blog/')} aria-label="Site">
 		{#each navItems as item}
 			<a
 				href={item.href}

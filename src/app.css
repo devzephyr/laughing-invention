@@ -188,6 +188,11 @@ a:active {
   margin: 0 auto;
 }
 
+/* Post pages: about 25% wider, so most code blocks fit without scrolling */
+.content-container.wide {
+  max-width: 675px;
+}
+
 /* Blog post images - clickable zoom */
 article img {
   cursor: zoom-in;
