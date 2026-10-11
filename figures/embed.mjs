@@ -31,8 +31,11 @@ const THEME = `<script>(()=>{const m=matchMedia("(prefers-color-scheme: dark)");
 
 // The post page listens for this and sizes the iframe to fit, so there is no inner scrollbar.
 // The body's own box, not documentElement.scrollHeight, which never drops below the iframe's height.
+// The page may hydrate after this frame has already reported, so it can also ask for a fresh measurement.
 const resize = (slug) => `
-new ResizeObserver(() => parent.postMessage({ figure: ${JSON.stringify(slug)}, height: Math.ceil(document.body.getBoundingClientRect().height) }, "/")).observe(document.body);
+const reportHeight = () => parent.postMessage({ figure: ${JSON.stringify(slug)}, height: Math.ceil(document.body.getBoundingClientRect().height) }, "/");
+new ResizeObserver(reportHeight).observe(document.body);
+addEventListener("message", (e) => { if (e.origin === location.origin && e.data === "figure:measure") reportHeight(); });
 `;
 
 /**

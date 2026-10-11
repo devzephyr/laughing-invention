@@ -38,6 +38,8 @@ That table holds fourteen labels for one family of credential. Resident key, dis
 
 The "Coined by" column carries the story. Four authorities named the same concept, each for its own audience, and no referee sat above them.
 
+<iframe class="figure-frame" src="/figures/fourteen-names-for-a-passkey.html" title="Interactive figure: four presses keep adding names to one key" loading="lazy"></iframe>
+
 FIDO's CTAP2 group named the plumbing first in 2018. The Client-to-Authenticator Protocol calls a self-stored credential a resident key, because at the protocol level it resides on the device. That word fit the engineering document it lived in.
 
 W3C named the browser API next and picked different words. WebAuthn shipped in 2019 with its own working group and an audience of web developers. Its 2021 revision judged "resident key" confusing and renamed the concept "discoverable credential." W3C cannot edit FIDO's specifications, so it added a second name rather than replacing the first. Both remain normative.

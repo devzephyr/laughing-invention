@@ -316,6 +316,8 @@ My 101 MB `regdump.txt` contains zero occurrences of either string, and the temp
 
 This part is worth generalizing, and it's a shape I recognize from debugging machine learning code: everything runs, nothing raises, and the output is wrong.
 
+<iframe class="figure-frame" src="/figures/flash-ctf-seven-challenges-six-flags.html" title="Interactive figure: the flag halves sit in the transaction log until it is replayed" loading="lazy"></iframe>
+
 A registry hive isn't a file, it's a file plus a transaction log. Microsoft's own documentation lays it out in a table: alongside the hive's data file, `.log` is "a transaction log of changes to the keys and value entries in the hive," and the supporting files for `HKEY_CURRENT_USER` are listed as `Ntuser.dat, Ntuser.dat.log`. Windows records changes into the log and merges them into the hive lazily, so a hive copied off a running machine mid-write can leave its newest entries pending in the log, invisible to anything that reads the hive alone. It's the registry version of reading a database mid-transaction and treating the result as the truth.
 
 The official solve goes the other way: point Registry Explorer at `ntuser.dat`, hand it both `.LOG` files, and it replays them at load time, at which point those two entries appear in RecentDocs. Two open-source parsers will do the same replay and I'd reach for either of them next time: yarp, whose README lists "Support for transaction log files," and regipy, which advertises "Apply transaction logs on a registry hive."

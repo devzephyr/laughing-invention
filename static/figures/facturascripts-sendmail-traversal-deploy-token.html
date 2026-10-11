@@ -1048,5 +1048,7 @@ runFigure({
   },
 });
 
-new ResizeObserver(() => parent.postMessage({ figure: "facturascripts-sendmail-traversal-deploy-token", height: Math.ceil(document.body.getBoundingClientRect().height) }, "/")).observe(document.body);
+const reportHeight = () => parent.postMessage({ figure: "facturascripts-sendmail-traversal-deploy-token", height: Math.ceil(document.body.getBoundingClientRect().height) }, "/");
+new ResizeObserver(reportHeight).observe(document.body);
+addEventListener("message", (e) => { if (e.origin === location.origin && e.data === "figure:measure") reportHeight(); });
 </script></body></html>

@@ -59,6 +59,8 @@ These weren't simple API key farms. Anthropic describes the attackers using "com
 
 Hydra architecture: cut off one head, ten more take over. Suspend one account, the query load redistributes across the cluster. Block an IP range, traffic reroutes. The whole design is specifically built to outlast standard abuse response timelines, by the time Anthropic's systems detect a pattern and take action, the pipeline has already moved.
 
+<iframe class="figure-frame" src="/figures/ai-distillation-wars-anthropic-deepseek.html" title="Interactive figure: closing one tap moves the load to the rest of the cluster" loading="lazy"></iframe>
+
 This is not a startup skunkworks project. Coordinated account creation at scale, distributed proxy infrastructure, targeted capability extraction designed around specific training objectives, this is organized, resourced, and intentional. Someone wrote an ops playbook for this.
 
 ## The Real Danger: Safety Stripped Out

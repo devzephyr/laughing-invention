@@ -114,6 +114,10 @@
 			}
 		};
 		window.addEventListener('message', sizeFigure);
+		// A figure that loaded before this listener existed has already reported; ask it again
+		for (const frame of document.querySelectorAll<HTMLIFrameElement>('iframe.figure-frame')) {
+			frame.contentWindow?.postMessage('figure:measure', location.origin);
+		}
 		return () => window.removeEventListener('message', sizeFigure);
 	});
 </script>
