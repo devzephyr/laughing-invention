@@ -42,7 +42,7 @@ new ResizeObserver(() => parent.postMessage({ figure: ${JSON.stringify(slug)}, h
  * @param {{ title: string, fig: string, hint?: string, readout: string, keys: {mark: string, label: string}[],
  *   caption: string, svg: string, stageLabel: string, live: string, css?: string }} figure
  */
-export function writeFigure(slug, { title, fig, hint = "Hover to scrub · arrows step", readout, keys, caption, svg, stageLabel, live, css = "" }) {
+export function writeFigure(slug, { title, fig, hint = "Hover to scrub · arrows step", readout, keys, caption, svg, stageLabel, live, css = "", fix = true }) {
   if (!/^[a-z0-9-]+$/.test(slug)) throw new Error(`bad figure slug: ${slug}`);
   const plate = plateHtml({
     fig,
@@ -56,8 +56,8 @@ export function writeFigure(slug, { title, fig, hint = "Hover to scrub · arrows
       `<span class="fig-live" aria-live="polite" data-live></span>`,
   });
   const controls = `<div class="fig-controls"><button type="button" data-fix aria-pressed="false">Apply the fix</button></div>`;
-  const body = plate.replace("</div><figcaption", `</div>${controls}<figcaption`);
-  if (body === plate) throw new Error("plateHtml markup changed: could not place the fix toggle");
+  const body = fix ? plate.replace("</div><figcaption", `</div>${controls}<figcaption`) : plate;
+  if (fix && body === plate) throw new Error("plateHtml markup changed: could not place the fix toggle");
   const html = pageHtml({ title, theme: "light", body, script: kitScript() + RUNTIME + live + resize(slug) })
     .replace("</style>", `${FRAME_CSS}${css}</style>`)
     .replace('<main class="iso-page">', `${THEME}<main class="iso-page">`);

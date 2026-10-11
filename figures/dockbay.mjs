@@ -4,19 +4,21 @@ import * as k from "./anatomy/kit/iso-kit.mjs";
 export { k };
 
 export const WIDTH = 600;
-export const HEIGHT = 360;
+export const HEIGHT = 400;
 
 export const DECK = { x: -140, y: -70, w: 280, d: 140, r: 8 };
 const DECK_H = 12;
 const FOOT_H = 5;
-// Tallest thing any figure may stand; fixing it fixes the camera, so every figure shares one scale
+// Tallest thing any figure may stand, and only along the back half where tall parts go.
+// Fixing it fixes the camera, so every figure shares one scale.
 const HEADROOM_Z = 64;
+const BACK = [[DECK.x, DECK.y], [DECK.x + DECK.w, DECK.y], [DECK.x, DECK.y + DECK.d / 2], [DECK.x + DECK.w / 2, DECK.y]];
 
 export const P = k.fitProjection(
-  [...k.boxCorners(DECK, -DECK_H - FOOT_H, 0), ...k.corners(DECK, 0).map(([x, y]) => [x, y, HEADROOM_Z])],
+  [...k.boxCorners(DECK, -DECK_H - FOOT_H, 0), ...BACK.map(([x, y]) => [x, y, HEADROOM_Z])],
   WIDTH,
   HEIGHT,
-  { pad: 30, azimuth: 45 },
+  { pad: 16, azimuth: 45 },
 );
 
 export const at = (point) => k.iso(point, P);

@@ -60,6 +60,8 @@ In an ERP system, "data export" means customer lists, financial records, employe
 
 The two stored XSS vulnerabilities (CVE-2025-66420 and CVE-2025-66421) share the same fundamental flaw: SAO trusts content it shouldn't.
 
+<iframe class="figure-frame" src="/figures/tryton-erp-five-cves-one-audit.html" title="Interactive figure: an emailed HTML attachment runs in Tryton's origin and takes the session" loading="lazy"></iframe>
+
 ### Attachment XSS (CVE-2025-66420)
 
 **Step 1:** Attacker uploads an HTML file as an attachment to any Tryton record (invoice, purchase order, support ticket, etc.)

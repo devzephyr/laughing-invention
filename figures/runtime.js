@@ -26,7 +26,9 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
     if (readout.textContent !== text) readout.textContent = text;
     if (announce && live.textContent !== text) live.textContent = text;
   };
+  // A figure without a documented fix has no toggle; its tour just loops the bug
   const sync = () => {
+    if (!button) return;
     button.setAttribute("aria-pressed", String(fixed));
     button.textContent = label(fixed);
   };
@@ -46,8 +48,10 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
       goal += dt;
       if (goal >= cycle) {
         goal -= cycle;
-        fixed = !fixed;
-        sync();
+        if (button) {
+          fixed = !fixed;
+          sync();
+        }
       }
       t = goal;
     } else {
@@ -77,7 +81,7 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
       }, 3600);
   }
 
-  button.addEventListener("click", () => {
+  button?.addEventListener("click", () => {
     fixed = !fixed;
     sync();
     clearTimeout(idle);
@@ -106,7 +110,7 @@ function runFigure({ cycle, scrubEnd, steps, draw, phase, label }) {
   });
 
   stage.addEventListener("keydown", (event) => {
-    if (event.key === " " || event.key === "Enter") {
+    if (button && (event.key === " " || event.key === "Enter")) {
       event.preventDefault();
       button.click();
       return;

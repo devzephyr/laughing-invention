@@ -52,6 +52,8 @@ NVIDIA Container Toolkit is middleware that lets containers access GPU hardware.
 
 The vulnerability is in how these hooks inherit environment variables from the container.
 
+<iframe class="figure-frame" src="/figures/container-escape-three-lines-to-root.html" title="Interactive figure: the host-side hook loads poc.so from the container" loading="lazy"></iframe>
+
 ### Step 1: The LD_PRELOAD Trick
 
 `LD_PRELOAD` is a Linux environment variable that tells the dynamic linker to load specific shared libraries before anything else. It's commonly used for debugging, profiling, and also for hijacking library calls.

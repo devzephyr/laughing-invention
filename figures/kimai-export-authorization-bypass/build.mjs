@@ -40,7 +40,7 @@ function wall() {
   }
   // Tread plate where cargo leaves the export hatch
   const tread = { x: EXPORT.x0 - 2, y: FACE_Y + 2, w: EXPORT.x1 - EXPORT.x0 + 4, d: 9, r: 0.8 };
-  out.push(S(k.slabOf(tread, 0, 0.8, P, 3), { tone: "lo", crease: "none" }));
+  out.push(S(k.slabOf(tread, 0, 0.8, P, 3), { tone: "lo", crease: "lo" }));
   out.push(L(Array.from({ length: 9 }, (_, i) => k.lineOnTop([tread.x + 2 + i * 4.6, tread.y], [tread.x + 2 + i * 4.6 + 2.4, tread.y + tread.d], 0.8, P)).join(""), { tone: "faint" }));
   // Rivet rows along the top edge of the face, edge to edge
   out.push(D(Array.from({ length: 21 }, (_, i) => at([WALL.x + 6 + i * 10, FACE_Y, WALL_TOP - 3])), { size: 0.4 }));
