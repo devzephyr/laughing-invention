@@ -65,7 +65,8 @@
 		</div>
 		<p class="mono secondary">
 			Security researcher focused on web application vulnerabilities, exploit development,
-			and responsible disclosure. Currently seeking internship opportunities in offensive security.
+			and responsible disclosure. Seeking a 4-month Winter 2027 co-op (January - April) in security,
+			DevSecOps, cloud or AI automation in Toronto/GTA.
 		</p>
 	</section>
 

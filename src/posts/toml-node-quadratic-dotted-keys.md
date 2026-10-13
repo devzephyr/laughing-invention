@@ -5,6 +5,7 @@ date: "2026-10-13"
 tags: ["toml", "nodejs", "denial-of-service", "algorithmic-complexity", "cwe-407", "responsible-disclosure"]
 advisories:
   - id: "GHSA-9j65-hcg3-gc64"
+    repo: "BinaryMuse/toml-node"
     product: "toml (npm)"
     kind: "Quadratic-complexity DoS"
     affected: "<= 5.0.0"

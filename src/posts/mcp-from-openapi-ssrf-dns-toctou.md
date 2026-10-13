@@ -5,6 +5,7 @@ date: "2026-09-26"
 tags: ["security", "ssrf", "dns-rebinding", "mcp", "nodejs", "vulnerability"]
 advisories:
   - id: "GHSA-rm2m-wfw5-7wp5"
+    repo: "agentfront/mcp-from-openapi"
     product: "mcp-from-openapi"
     kind: "SSRF via DNS rebinding"
     affected: "<= 2.5.0"

@@ -5,6 +5,7 @@ date: "2026-08-17"
 tags: ["kimai", "access-control", "broken-authorization", "symfony", "cwe-862", "web-security"]
 advisories:
   - id: "GHSA-pvc4-crg3-gj44"
+    repo: "kimai/kimai"
     cve: "CVE-2026-80194"
     product: "Kimai"
     kind: "Missing authorization"

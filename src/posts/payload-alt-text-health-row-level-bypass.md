@@ -5,6 +5,7 @@ date: "2026-09-23"
 tags: ["payload-cms", "access-control", "multi-tenant", "cwe-863", "security-research"]
 advisories:
   - id: "GHSA-3pmw-vxv3-8vgq"
+    repo: "jhb-software/payload-plugins"
     product: "@jhb.software/payload-alt-text-plugin"
     kind: "Authorization bypass (CWE-863)"
     affected: ">= 0.4.0, < 0.13.0"

@@ -5,6 +5,7 @@ date: "2026-10-08"
 tags: ["trigger-dev", "multi-tenant", "sql-injection", "cwe-863", "clickhouse", "web-security"]
 advisories:
   - id: "GHSA-m79r-84cc-xwg9"
+    repo: "triggerdotdev/trigger.dev"
     product: "Trigger.dev"
     kind: "Tenant filter bypass"
     affected: "4.7.2"

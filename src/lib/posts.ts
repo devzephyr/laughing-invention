@@ -1,6 +1,8 @@
 /** One advisory the author reported, from a post's frontmatter. Every value is quoted from the post. */
 export interface Advisory {
 	id?: string;
+	/** GitHub owner/name that published the advisory; with id, links to its advisory page */
+	repo?: string;
 	cve?: string;
 	product: string;
 	kind: string;

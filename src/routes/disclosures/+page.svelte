@@ -67,7 +67,11 @@
 								<span class="kind">{row.kind}</span>
 							</td>
 							<td class="nowrap">
-								{row.id ?? 'No advisory ID'}
+								{#if row.id && row.repo}
+									<a href="https://github.com/{row.repo}/security/advisories/{row.id}" rel="noopener">{row.id}</a>
+								{:else}
+									{row.id ?? 'No advisory ID'}
+								{/if}
 								{#if row.cve}<span class="kind">{row.cve}</span>{/if}
 							</td>
 							<td class="nowrap">
