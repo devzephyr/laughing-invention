@@ -6,6 +6,7 @@ tags: ["toml", "nodejs", "denial-of-service", "algorithmic-complexity", "cwe-407
 advisories:
   - id: "GHSA-9j65-hcg3-gc64"
     repo: "BinaryMuse/toml-node"
+    cve: "CVE-2026-114143"
     product: "toml (npm)"
     kind: "Quadratic-complexity DoS"
     affected: "<= 5.0.0"
@@ -21,7 +22,7 @@ FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaS
 
 No nesting, no exotic syntax. One line of `k0.k1.k2. … = 1`.
 
-I reported it to the maintainer on September 12, 2026. Around the same time, pi3ch and midnightmichigan of SecDim Security Research reported the same bug on their own, so it went out as one advisory, [GHSA-9j65-hcg3-gc64](https://github.com/BinaryMuse/toml-node/security/advisories/GHSA-9j65-hcg3-gc64), crediting all three of us. The advisory text is SecDim's write-up. Michelle Tilley shipped the fix in `toml` 5.0.1 on October 12, 2026, along with fixes for three other advisories, and her fix is better than the one the advisory suggested. It's rated High. No CVE has been assigned.
+I reported it to the maintainer on September 12, 2026. Around the same time, pi3ch and midnightmichigan of SecDim Security Research reported the same bug on their own, so it went out as one advisory, [GHSA-9j65-hcg3-gc64](https://github.com/BinaryMuse/toml-node/security/advisories/GHSA-9j65-hcg3-gc64), crediting all three of us. The advisory text is SecDim's write-up. Michelle Tilley shipped the fix in `toml` 5.0.1 on October 12, 2026, along with fixes for three other advisories, and her fix is better than the one the advisory suggested. It's rated High and tracked as CVE-2026-114143.
 
 This one is worth writing up because the library already had a denial-of-service guard. Three months earlier it shipped `maxDepth` to stop a stack overflow. That guard limits how deep a document nests. This bug doesn't care how deep you nest. It only cares how long your key is.
 
@@ -194,6 +195,7 @@ The general lesson is the one this bug teaches by example. A guard that limits o
 - **2026-07-16**: SecDim's audited checkout, commit `1b2ac40`, one changelog-only commit past `v5.0.0`
 - **2026-09-12**: I reported it to the maintainer
 - **2026-10-12**: Fix committed (`609c873`), 5.0.1 published to npm, GHSA-9j65-hcg3-gc64 published
+- **2026-10-22**: The advisory was confirmed to carry CVE-2026-114143
 
 ## References
 
