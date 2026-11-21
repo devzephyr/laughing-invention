@@ -24,11 +24,19 @@ function shoot(figure, out) {
   const actions = JSON.stringify([["wait", 600], ["key", "End"], ["wait", 2200], ["shot", full, ".iso-stage svg", 1]]);
   const run = spawnSync("bun", [DRIVE, join(FIGURES, `${figure}.html`), actions, "--width", "1240", "--height", "900", "--theme", "light"], { encoding: "utf8" });
   if (run.status !== 0 || !existsSync(full)) throw new Error(`capture failed for ${figure}:\n${run.stdout}${run.stderr}`);
-  // The drawing is 1200x800; keep the middle 1200x630
-  const crop = spawnSync("sips", ["--resampleWidth", "1200", full, "--out", full], { encoding: "utf8" });
-  const cut = spawnSync("sips", ["--cropToHeightWidth", "630", "1200", full, "--out", out], { encoding: "utf8" });
+  const size = spawnSync("sips", ["-g", "pixelWidth", "-g", "pixelHeight", full], { encoding: "utf8" }).stdout;
+  const [width, height] = ["pixelWidth", "pixelHeight"].map((key) => Number(size.match(new RegExp(`${key}: (\\d+)`))?.[1]));
+  if (!width || !height) throw new Error(`could not read the size of ${full}`);
+  // Isometric drawings are 3:2 with empty margins: scale to 1200x800 and keep the middle 630 rows.
+  // Any other shape (a terminal, a diagram) has no margin to lose: fit it inside 1200x630 and pad.
+  const isometric = Math.abs(width / height - 1.5) < 0.02;
+  const steps = isometric
+    ? [["--resampleWidth", "1200", full, "--out", full], ["--cropToHeightWidth", "630", "1200", full, "--out", out]]
+    : [[...(width / height > 1200 / 590 ? ["--resampleWidth", "1160"] : ["--resampleHeight", "590"]), full, "--out", full],
+       ["--padToHeightWidth", "630", "1200", "--padColor", "FBFBF9", full, "--out", out]];
+  const failed = steps.map((args) => spawnSync("sips", args, { encoding: "utf8" })).find((run) => run.status !== 0);
   spawnSync("rm", ["-f", full]);
-  if (crop.status !== 0 || cut.status !== 0) throw new Error(`crop failed for ${figure}: ${crop.stderr}${cut.stderr}`);
+  if (failed) throw new Error(`crop failed for ${figure}: ${failed.stderr}`);
   console.log("wrote", out);
 }
 
